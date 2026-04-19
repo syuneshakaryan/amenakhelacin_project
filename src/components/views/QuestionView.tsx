@@ -45,7 +45,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
           
           {/* Score Overlay (Points - Blue Square) */}
           {/* Moved left from 64% to 66% and top to 20% */}
-          <div className="absolute left-[66%] top-[30%] w-[15%] h-[70%] flex justify-center items-center">
+          <div className="absolute left-[69%] top-[-15%] w-[15%] h-[70%] flex justify-center items-center">
             <span className="text-[5.5cqh] font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] leading-none font-mono tracking-tighter">
               {player?.score || 0}
             </span>
@@ -53,7 +53,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
 
           {/* Timer Overlay (Timer - Red Diamond) */}
           {/* Decreased right to 1% and top to 20% to center in the diamond */}
-          <div className="absolute right-[1%] top-[30%] w-[20%] h-[70%] flex justify-center items-center">
+          <div className="absolute right-[1%] top-[-15%] w-[20%] h-[70%] flex justify-center items-center">
             <span className={`text-[5.5cqh] font-black leading-none font-mono tracking-tighter drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] ${timeLeft < 10 ? 'text-red-200 animate-pulse' : 'text-white'}`}>
               {timeLeft}
             </span>
