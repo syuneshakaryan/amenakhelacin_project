@@ -24,6 +24,23 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
   isModerator,
   onFinishTurn
 }) => {
+  // Keyboard handlers for True/False
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if round isn't over and it's the moderator or local control
+      if (isRoundOver) return;
+
+      if (e.key === '1') {
+        onAnswer(true);
+      } else if (e.key === '2') {
+        onAnswer(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isRoundOver, onAnswer]);
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-[#050b18]">
       <div className="game-stage">
@@ -82,7 +99,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
                  animate={{ opacity: 1, y: 0 }}
                  className="text-[6cqh] font-black text-game-gold italic uppercase drop-shadow-[0_4px_15px_rgba(0,0,0,1)] tracking-widest"
                >
-                 Time Expired
+                 Ժամանակն ավարտվեց
                </motion.div>
             </div>
           )}
@@ -90,23 +107,6 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
 
         {/* Moderator Controls */}
         <div className="absolute bottom-[6%] left-1/2 -translate-x-1/2 flex gap-[4%] z-20 w-[60%] justify-center">
-          {!isRoundOver && isModerator && (
-            <>
-              <button 
-                onClick={() => onAnswer(false)} 
-                className="bg-red-600/10 hover:bg-red-600/30 px-[10%] py-[2%] rounded-md text-red-500 border border-red-500/50 uppercase font-black text-[1.8cqh] tracking-[0.3em] transition-all backdrop-blur-sm hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                False (0)
-              </button>
-              <button 
-                onClick={() => onAnswer(true)} 
-                className="bg-green-600/10 hover:bg-green-600/30 px-[10%] py-[2%] rounded-md text-green-500 border border-green-500/50 uppercase font-black text-[1.8cqh] tracking-[0.3em] transition-all backdrop-blur-sm hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                True (1)
-              </button>
-            </>
-          )}
-
           {isRoundOver && isModerator && (
              <motion.button 
                initial={{ opacity: 0, scale: 0.9 }}
@@ -114,7 +114,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
                onClick={onFinishTurn}
                className="bg-game-blue/20 hover:bg-game-blue/40 px-[8%] py-[2%] rounded-md text-game-blue-light border border-game-blue-light uppercase font-black text-[2.2cqh] tracking-[0.2em] transition-all backdrop-blur-xl shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:scale-105"
              >
-               Confirm & Next Player
+               Հաստատել և հաջորդ խաղացողը
              </motion.button>
           )}
         </div>
@@ -125,8 +125,8 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
           animate={{ opacity: 1, x: 0 }}
           className="absolute top-[5%] left-[5%] z-10 p-[2%] bg-slate-950/40 backdrop-blur-xl border border-slate-800/50 rounded-lg shadow-2xl min-w-[20%]"
         >
-           <div className="text-[1.2cqh] font-bold text-slate-500 uppercase tracking-[0.4em] mb-[0.5%]">Active Competitor</div>
-           <div className="text-[3.5cqh] font-black text-white uppercase tracking-tighter">{player?.name || 'Searching...'}</div>
+           <div className="text-[1.2cqh] font-bold text-slate-500 uppercase tracking-[0.4em] mb-[0.5%]">Ակտիվ մասնակից</div>
+           <div className="text-[3.5cqh] font-black text-white uppercase tracking-tighter">{player?.name || 'Որոնում...'}</div>
            <div className="mt-[2%] h-[1.2cqh] w-full bg-game-blue-light/10 rounded-full overflow-hidden border border-white/5">
               <motion.div 
                 className="h-full bg-gradient-to-r from-game-blue to-game-blue-light shadow-[0_0_10px_#3b82f6]" 

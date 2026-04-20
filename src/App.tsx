@@ -29,6 +29,23 @@ export default function App() {
     puzzleHint: '',
   });
 
+  // Preload images to prevent flickering/lag
+  useEffect(() => {
+    const imagesToPreload = [
+      '/photo_1.png',
+      '/photo_2.png',
+      '/photo_3.png',
+      '/photo_4.png',
+      '/photo_7.png',
+      '/photo_8.png'
+    ];
+
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const updateState = useCallback((newState: Partial<GameState>) => {
     setGameState(prev => ({ ...prev, ...newState }));
   }, []);
@@ -109,6 +126,19 @@ export default function App() {
     }
   }, [gameState.timeLeft, gameState.activeTopicId, gameState.view]);
 
+  // Handle automatic player selection for topics
+  useEffect(() => {
+    if (gameState.view === 'topics') {
+      const takenCount = gameState.topics.filter(t => t.isTaken).length;
+      const turnIndex = takenCount % 6;
+      const nextPlayerId = gameState.ranking[turnIndex];
+      
+      if (nextPlayerId && nextPlayerId !== gameState.activePlayerId) {
+        setGameState(prev => ({ ...prev, activePlayerId: nextPlayerId }));
+      }
+    }
+  }, [gameState.view, gameState.topics, gameState.ranking, gameState.activePlayerId]);
+
   const renderView = () => {
     switch (gameState.view) {
       case 'puzzle':
@@ -123,17 +153,19 @@ export default function App() {
         const fullScoreRanking = [...scoreRanking, ...Array(Math.max(0, 6 - scoreRanking.length)).fill(null)];
         return <RankingView ranking={fullScoreRanking} players={gameState.players} showScores />;
       case 'topics':
+        const pickingPlayer = gameState.players.find(p => p.id === gameState.activePlayerId);
         return (
           <TopicGridView 
             topics={gameState.topics} 
             onSelectTopic={handleSelectTopic} 
             isModerator={true} 
+            activePlayerName={pickingPlayer?.name}
           />
         );
       case 'question':
         const currentTopic = gameState.topics.find(t => t.id === gameState.activeTopicId);
         const currentPlayer = gameState.players.find(p => p.id === gameState.activePlayerId);
-        const question = currentTopic?.questions[gameState.currentQuestionIndex % currentTopic.questions.length] || 'No more questions.';
+        const question = currentTopic?.questions[gameState.currentQuestionIndex % currentTopic.questions.length] || 'Հարցեր չկան:';
         
         return (
           <QuestionView 
@@ -148,7 +180,7 @@ export default function App() {
           />
         );
       default:
-        return <div>Unknown View</div>;
+        return <div>Անհայտ տեսարան</div>;
     }
   };
 
@@ -161,7 +193,7 @@ export default function App() {
       {/* Header Info (Optional display on board) */}
       <div className="absolute top-4 left-6 z-10 flex items-center gap-4 opacity-50">
          <div className="w-2 h-2 rounded-full bg-game-blue-light animate-ping" />
-         <span className="text-[10px] font-mono tracking-widest uppercase">System Active | Board: {gameState.view.toUpperCase()}</span>
+         <span className="text-[10px] font-mono tracking-widest uppercase">Համակարգը ակտիվ է | Ցուցատախտակ: {gameState.view.toUpperCase()}</span>
       </div>
 
       {/* Main Board Content */}

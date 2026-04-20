@@ -27,11 +27,11 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
   onPlayerRankChange
 }) => {
   const views: { id: GameView; icon: any; label: string }[] = [
-    { id: 'puzzle', icon: Puzzle, label: 'Puzzle Round' },
-    { id: 'ranking', icon: Trophy, label: 'Ranking Stage' },
-    { id: 'topics', icon: Grid3X3, label: 'Topic Choice' },
-    { id: 'question', icon: MessageSquare, label: 'Blitz Stage' },
-    { id: 'finalRank', icon: Trophy, label: 'Final Standings' },
+    { id: 'puzzle', icon: Puzzle, label: 'Գաղտնազերծման փուլ' },
+    { id: 'ranking', icon: Trophy, label: 'Դասակարգման փուլ' },
+    { id: 'topics', icon: Grid3X3, label: 'Թեմայի ընտրություն' },
+    { id: 'question', icon: MessageSquare, label: 'Բլից հարցեր' },
+    { id: 'finalRank', icon: Trophy, label: 'Վերջնական արդյունքներ' },
   ];
 
   const handleNameChange = (id: number, newName: string) => {
@@ -66,17 +66,17 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         {state.view === 'puzzle' && (
           <div className="flex flex-col gap-2 bg-slate-800 p-2 rounded-lg">
              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Hint Phrase:</span>
+                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Հուշող արտահայտություն:</span>
                 <input 
                   type="text"
-                  placeholder="Enter hint phrase..."
+                  placeholder="Մուտքագրեք հուշող արտահայտությունը..."
                   value={state.puzzleHint || ''}
                   onChange={(e) => onUpdateState({ puzzleHint: e.target.value })}
                   className="bg-slate-950 border border-slate-700 text-game-gold px-2 py-1 text-[10px] rounded focus:border-game-blue w-64"
                 />
              </div>
              <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Puzzle Numbers:</span>
+                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Գաղտնազերծման թվեր:</span>
                 <div className="flex gap-1">
                    {state.puzzleValues.map((val, idx) => (
                      <input 
@@ -100,20 +100,20 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         {state.view === 'ranking' && (
           <div className="flex flex-col gap-2 bg-slate-800 p-2 rounded-lg min-w-[500px]">
              <div className="flex items-center gap-2 px-2 overflow-x-auto">
-                <span className="text-[9px] font-black uppercase text-slate-500 whitespace-nowrap">Edit Names:</span>
+                <span className="text-[9px] font-black uppercase text-slate-500 whitespace-nowrap">Խմբագրել անունները:</span>
                 {players.map(p => (
                   <input 
                     key={p.id}
                     type="text"
                     value={p.name}
-                    placeholder={`P${p.id}`}
+                    placeholder={`Խաղացող ${p.id}`}
                     onChange={(e) => handleNameChange(p.id, e.target.value)}
                     className="bg-slate-950 border border-slate-700 text-[10px] text-white px-1 py-0.5 rounded focus:border-game-blue w-20"
                   />
                 ))}
              </div>
              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase text-slate-500 ml-2 whitespace-nowrap">Set Ranks:</span>
+                <span className="text-[9px] font-black uppercase text-slate-500 ml-2 whitespace-nowrap">Սահմանել տեղերը:</span>
                 <div className="flex gap-1">
                    {[0, 1, 2, 3, 4, 5].map(rankIdx => (
                      <select 
@@ -122,10 +122,13 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
                        onChange={(e) => onPlayerRankChange(rankIdx, parseInt(e.target.value))}
                        className="bg-slate-950 text-slate-200 text-[10px] p-1 border border-slate-700 rounded focus:border-game-gold outline-none w-20"
                      >
-                       <option value="">Place {rankIdx + 1}</option>
-                       {players.map(p => (
-                         <option key={p.id} value={p.id}>{p.name || `P${p.id}`}</option>
-                       ))}
+                       <option value="">{rankIdx + 1}-րդ տեղ</option>
+                       {players
+                         .filter(p => !state.ranking.includes(p.id) || p.id === state.ranking[rankIdx])
+                         .map(p => (
+                           <option key={p.id} value={p.id}>{p.name || `Խաղացող ${p.id}`}</option>
+                         ))
+                       }
                      </select>
                    ))}
                 </div>
@@ -135,7 +138,7 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
 
         {state.view === 'topics' && (
           <div className="flex items-center gap-4">
-             <span className="text-xs font-bold uppercase text-slate-500">Target Player:</span>
+             <span className="text-xs font-bold uppercase text-slate-500">Ընթացիկ խաղացող:</span>
              <div className="flex gap-2">
                 {players.map(p => (
                   <button
@@ -168,7 +171,7 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
-               <span className="text-xs font-bold uppercase text-slate-500">Manual Adjust:</span>
+               <span className="text-xs font-bold uppercase text-slate-500">Ճշգրտում:</span>
                <div className="flex gap-1 h-8">
                   <button onClick={() => {
                     const p = players.find(player => player.id === state.activePlayerId);
@@ -193,7 +196,7 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         <button 
           onClick={() => window.location.reload()}
           className="p-2 text-slate-600 hover:text-red-500 transition-colors"
-          title="Reset Everything"
+          title="Վերագործարկել ամեն ինչ"
         >
           <RotateCcw size={16} />
         </button>
