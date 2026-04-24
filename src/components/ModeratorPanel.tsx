@@ -133,6 +133,21 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
                    ))}
                 </div>
              </div>
+             {state.ranking.every(r => r !== null) && (
+                <div className="mt-2 flex justify-end">
+                   <button 
+                     onClick={() => onUpdateState({ 
+                       view: 'topics', 
+                       activePlayerId: state.ranking[0],
+                       activeTopicId: null,
+                       isRoundOver: false
+                     })}
+                     className="bg-game-gold text-black text-[10px] font-black px-4 py-1 rounded uppercase hover:bg-yellow-400 transition-colors"
+                   >
+                     Սկսել 2-րդ փուլը
+                   </button>
+                </div>
+             )}
           </div>
         )}
 

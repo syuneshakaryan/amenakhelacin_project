@@ -84,7 +84,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
                 key={question}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-[4.8cqh] font-black text-slate-100 text-center leading-[1.1] italic drop-shadow-[0_4px_12px_rgba(0,0,0,1)] uppercase tracking-tight"
+                className="text-[4.8cqh] font-bold text-slate-100 text-center leading-[1.1] italic drop-shadow-[0_4px_12px_rgba(0,0,0,1)] tracking-tight"
               >
                 {question}
               </motion.p>
@@ -97,7 +97,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
                <motion.div 
                  initial={{ opacity: 0, y: 10 }}
                  animate={{ opacity: 1, y: 0 }}
-                 className="text-[6cqh] font-black text-game-gold italic uppercase drop-shadow-[0_4px_15px_rgba(0,0,0,1)] tracking-widest"
+                 className="text-[6cqh] font-bold text-game-gold italic drop-shadow-[0_4px_15px_rgba(0,0,0,1)] tracking-widest"
                >
                  Ժամանակն ավարտվեց
                </motion.div>
@@ -125,8 +125,8 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
           animate={{ opacity: 1, x: 0 }}
           className="absolute top-[5%] left-[5%] z-10 p-[2%] bg-slate-950/40 backdrop-blur-xl border border-slate-800/50 rounded-lg shadow-2xl min-w-[20%]"
         >
-           <div className="text-[1.2cqh] font-bold text-slate-500 uppercase tracking-[0.4em] mb-[0.5%]">Ակտիվ մասնակից</div>
-           <div className="text-[3.5cqh] font-black text-white uppercase tracking-tighter">{player?.name || 'Որոնում...'}</div>
+           <div className="text-[1.2cqh] font-bold text-slate-500 tracking-[0.3em] mb-[0.5%]">Ակտիվ մասնակից</div>
+           <div className="text-[3.5cqh] font-bold text-white tracking-tighter">{player?.name || 'Որոնում...'}</div>
            <div className="mt-[2%] h-[1.2cqh] w-full bg-game-blue-light/10 rounded-full overflow-hidden border border-white/5">
               <motion.div 
                 className="h-full bg-gradient-to-r from-game-blue to-game-blue-light shadow-[0_0_10px_#3b82f6]" 

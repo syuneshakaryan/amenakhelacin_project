@@ -1,4 +1,4 @@
-export type GameView = 'puzzle' | 'ranking' | 'topics' | 'question' | 'finalRank';
+export type GameView = 'login' | 'ready' | 'puzzle' | 'ranking' | 'topics' | 'question' | 'finalRank';
 
 export interface Player {
   id: number;
@@ -26,4 +26,6 @@ export interface GameState {
   isRoundOver: boolean;
   puzzleValues: string[];
   puzzleHint: string;
+  isRankingRevealed?: boolean;
+  isAuthenticated: boolean;
 }

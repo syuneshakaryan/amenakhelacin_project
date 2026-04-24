@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Topic } from '../../types';
 
@@ -16,21 +16,43 @@ export const TopicGridView: React.FC<TopicGridViewProps> = ({
   activePlayerName 
 }) => {
   const [showAnnouncer, setShowAnnouncer] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio("/sounds/Britain's Brainiest _ Round 2 - Next Player.mp3");
+    }
+
+    if (activePlayerName) {
+      setShowAnnouncer(true); // Reset announcer visibility
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.warn("Topic announcer audio failed", e));
+    }
+
     const timer = setTimeout(() => {
       setShowAnnouncer(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }, 2500);
+
+    return () => {
+      clearTimeout(timer);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, [activePlayerName]);
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-[#020617]">
       <div className="game-stage">
-        {/* Background */}
-        <div 
-          className="absolute inset-0 bg-center bg-no-repeat bg-cover"
-          style={{ backgroundImage: 'url("/photo_3.png")' }}
+        {/* Background - Using img tag for better decoding stability and performance */}
+        <img 
+          src="/photo_3.png" 
+          alt="background" 
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" 
         />
         
         {/* Announcer Overlay */}
@@ -48,8 +70,8 @@ export const TopicGridView: React.FC<TopicGridViewProps> = ({
                 exit={{ scale: 1.1, opacity: 0, y: -20 }}
                 className="text-center"
               >
-                <div className="text-[2cqh] font-bold text-game-blue-light uppercase tracking-[0.5em] mb-2">Թեմա ընտրելու հերթը</div>
-                <div className="text-[8cqh] font-black text-white italic uppercase tracking-tighter drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+                <div className="text-[2cqh] font-bold text-game-blue-light tracking-[0.3em] mb-2">Թեմա ընտրելու հերթը</div>
+                <div className="text-[8cqh] font-bold text-white italic tracking-tighter drop-shadow-[0_0_30px_rgba(59,130,246,0.6)]">
                   {activePlayerName}
                 </div>
                 <div className="mt-6 flex justify-center">
@@ -80,7 +102,7 @@ export const TopicGridView: React.FC<TopicGridViewProps> = ({
                 />
               )}
               
-              <span className={`relative z-10 text-[3.2cqh] font-black uppercase tracking-tight text-center px-2 transition-all leading-none
+              <span className={`relative z-10 text-[3.2cqh] font-bold tracking-tight text-center px-2 transition-all leading-none
                 ${topic.isTaken ? 'text-slate-500/80 line-through' : 'text-blue-100 hover:text-white drop-shadow-[0_2px_10px_rgba(59,130,246,0.8)]'}
               `}>
                 {topic.name}

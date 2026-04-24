@@ -4,9 +4,20 @@ import { motion } from 'motion/react';
 interface PuzzleViewProps {
   values: string[];
   hint: string;
+  onEnter?: () => void;
 }
 
-export const PuzzleView: React.FC<PuzzleViewProps> = ({ values, hint }) => {
+export const PuzzleView: React.FC<PuzzleViewProps> = ({ values, hint, onEnter }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && onEnter) {
+        onEnter();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onEnter]);
+
   const dialButtons = [
     { num: 1, text: 'ԱԲԳԴ', top: '15%', left: '33.3%' },
     { num: 2, text: 'ԵԶԷԸ', top: '15%', left: '50%' },
@@ -23,10 +34,11 @@ export const PuzzleView: React.FC<PuzzleViewProps> = ({ values, hint }) => {
   return (
     <div className="w-full h-full flex items-center justify-center bg-[#020617]">
       <div className="game-stage">
-        {/* Exact Graphic Background */}
-        <div 
-          className="absolute inset-0 bg-center bg-no-repeat bg-cover z-0"
-          style={{ backgroundImage: 'url("/photo_1.png")' }}
+        {/* Background - Using img tag for better decoding stability and performance */}
+        <img 
+          src="/photo_1.jpg" 
+          alt="background" 
+          className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none z-0" 
         />
 
         {/* Interactive Overlay Layers (Transparent Buttons) */}
@@ -44,13 +56,13 @@ export const PuzzleView: React.FC<PuzzleViewProps> = ({ values, hint }) => {
 
         {/* Hint Phrase - Positioned above the blue boxes */}
         {hint && (
-          <div className="absolute bottom-[16%] left-[27.5%] w-[45%] z-20 flex justify-center">
+          <div className="absolute bottom-[16%] left-[22.5%] w-[55%] z-20 flex justify-center">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="bg-slate-950/60 backdrop-blur-md px-[6%] py-[1%] border border-game-blue-light/30 rounded shadow-2xl"
             >
-              <span className="text-[3cqh] font-bold text-game-blue-light uppercase tracking-[0.3em] whitespace-nowrap italic">
+              <span className="text-[3cqh] font-bold text-white tracking-[0.2em] whitespace-nowrap italic">
                 {hint}
               </span>
             </motion.div>
@@ -58,9 +70,9 @@ export const PuzzleView: React.FC<PuzzleViewProps> = ({ values, hint }) => {
         )}
 
         {/* 2-word phrase placeholder - Positioned over the blue boxes at the bottom */}
-        <div className="absolute bottom-[2%] left-[27.5%] flex gap-[1%] w-[45%] h-[13%] z-10">
+        <div className="absolute bottom-[2%] left-[22.5%] flex gap-[1.5px] w-[47%] h-[13%] z-10">
           {values.map((val, i) => (
-            <div key={i} className="flex-1 flex items-center justify-center text-slate-100 text-[6cqh] font-black drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] uppercase">
+            <div key={i} className="flex-1 flex items-center justify-center text-slate-100 text-[6cqh] font-bold drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
                {val}
             </div>
           ))}
