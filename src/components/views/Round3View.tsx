@@ -179,33 +179,33 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
               {/* Background HUD style */}
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500 via-transparent to-transparent pointer-events-none" />
               
-              <div className="relative w-full h-full flex flex-col items-center justify-center gap-8">
+              <div className="relative w-full h-full flex flex-col items-center justify-center gap-4 md:gap-8 overflow-hidden p-4">
                 {/* Active Player Status */}
-                <div className="flex gap-6 mb-4">
+                <div className="flex flex-wrap justify-center gap-2 md:gap-6 w-full max-w-4xl">
                   {top3.map((p, i) => (
                     <div 
                       key={p.id}
-                      className={`px-6 py-3 rounded-xl border-2 transition-all flex flex-col items-center min-w-[150px] ${
+                      className={`px-3 py-1.5 md:px-6 md:py-3 rounded-lg md:rounded-xl border md:border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[150px] ${
                         i === state.currentPlayerIndex 
-                          ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] scale-110' 
+                          ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] scale-105 md:scale-110' 
                           : 'bg-slate-900/50 border-slate-800 opacity-60'
                       }`}
                     >
-                      <span className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest mb-1 text-center">
+                      <span className="text-[8px] md:text-[10px] font-mono text-blue-400/80 uppercase tracking-widest mb-0.5 md:mb-1 text-center">
                         {i === 0 ? 'ԿԱՊՈՒՅՏ' : i === 1 ? 'ԿԱՐՄԻՐ' : 'ԴԵՂԻՆ'}
                       </span>
-                      <span className="text-lg font-bold text-white uppercase">{p.name}</span>
-                      <span className="text-xl font-mono font-black text-white">{p.score}</span>
+                      <span className="text-xs md:text-lg font-bold text-white uppercase truncate max-w-full">{p.name}</span>
+                      <span className="text-sm md:text-xl font-mono font-black text-white">{p.score}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="grid grid-cols-5 gap-3 w-full max-w-[600px] aspect-square">
+                <div className="grid grid-cols-5 gap-2 md:gap-3 w-full max-w-[85vw] md:max-w-[600px] aspect-square">
                   {state.cells.map((cell, idx) => (
                     <motion.div
                       key={idx}
                       whileHover={!cell.isRevealed ? { scale: 1.05, backgroundColor: '#333' } : {}}
-                      className={`flex items-center justify-center rounded-lg text-4xl font-bold transition-all shadow-2xl ${getCellColorClass(cell.color, cell.isRevealed)}`}
+                      className={`flex items-center justify-center rounded-md md:rounded-lg text-2xl md:text-4xl font-bold transition-all shadow-xl md:shadow-2xl ${getCellColorClass(cell.color, cell.isRevealed)}`}
                     >
                       {cell.number}
                     </motion.div>
@@ -213,10 +213,10 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <div className="text-slate-500 font-mono text-2xl tracking-[0.5em] h-8">
+                  <div className="text-slate-500 font-mono text-xl md:text-2xl tracking-[0.5em] h-6 md:h-8">
                     {inputBuffer.padStart(2, '0')}
                   </div>
-                  <div className="text-[10px] text-slate-600 uppercase tracking-[0.2em] mt-2">
+                  <div className="text-[8px] md:text-[10px] text-slate-600 uppercase tracking-[0.2em] mt-1 md:mt-2">
                     Մուտքագրեք վանդակի համարը
                   </div>
                 </div>
@@ -232,50 +232,47 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40 bg-black/95 flex items-center justify-center"
+              className="absolute inset-0 z-40 bg-black/95 flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden"
             >
-              <div className="relative w-full h-full flex flex-col items-center justify-center p-12">
-                <img src="/photo_7.png" alt="HUD" className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
-                
-                <div className="relative z-10 w-full max-w-5xl flex flex-col items-center">
-                  {/* Player Turn Indicator */}
-                  <div className={`mb-12 px-12 py-4 rounded-2xl border-2 backdrop-blur-xl shadow-2xl flex flex-col items-center ${
-                    state.currentPlayerIndex === 0 ? 'border-blue-500 bg-blue-500/10' :
-                    state.currentPlayerIndex === 1 ? 'border-red-500 bg-red-500/10' :
-                    'border-slate-200 bg-white/10'
-                  }`}>
-                    <span className="text-sm font-mono tracking-[0.3em] font-medium uppercase opacity-60 mb-1">
-                      Ընթացիկ քայլը
+              <img src="/photo_7.png" alt="HUD" className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
+              
+              <div className="relative z-10 w-full max-w-5xl flex flex-col items-center">
+                {/* Player Turn Indicator */}
+                <div className={`mb-6 md:mb-12 px-6 py-2 md:px-12 md:py-4 rounded-xl md:rounded-2xl border md:border-2 backdrop-blur-xl shadow-2xl flex flex-col items-center ${
+                  state.currentPlayerIndex === 0 ? 'border-blue-500 bg-blue-500/10' :
+                  state.currentPlayerIndex === 1 ? 'border-red-500 bg-red-500/10' :
+                  'border-slate-200 bg-white/10'
+                }`}>
+                  <span className="text-[10px] md:text-sm font-mono tracking-[0.3em] font-medium uppercase opacity-60 mb-0.5 md:mb-1">
+                    Ընթացիկ քայլը
+                  </span>
+                  <h2 className="text-2xl md:text-5xl font-black text-white uppercase tracking-wider">
+                    {currentPlayer.name}
+                  </h2>
+                </div>
+
+                <div className="bg-slate-900/60 p-6 md:p-12 rounded-2xl md:rounded-[2rem] border border-white/10 backdrop-blur-sm w-full shadow-inner mb-6 md:mb-12">
+                  <h3 className="text-xl md:text-5xl font-sans font-bold text-white text-center leading-[1.3] text-balance">
+                    {state.cells[state.activeCellIndex].question}
+                  </h3>
+                </div>
+
+                {/* Timer UI */}
+                <div className="w-full max-w-2xl flex flex-col items-center gap-4 md:gap-8">
+                  <div className="relative h-2 md:h-4 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 p-0.5 md:p-1 shadow-inner">
+                    <motion.div 
+                      className="absolute inset-0.5 md:inset-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500"
+                      initial={{ width: '100%' }}
+                      animate={{ width: `${(state.questionTimeLeft / 10) * 100}%` }}
+                      transition={{ duration: state.isQuestionTimerRunning ? 1 : 0, ease: 'linear' }}
+                    />
+                  </div>
+
+                  <div className="flex items-baseline gap-2 md:gap-4">
+                    <span className="text-6xl md:text-9xl font-mono font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                      {state.questionTimeLeft}
                     </span>
-                    <h2 className="text-5xl font-black text-white uppercase tracking-wider">
-                      {currentPlayer.name}
-                    </h2>
-                  </div>
-
-                  <div className="bg-slate-900/60 p-12 rounded-[2rem] border border-white/10 backdrop-blur-sm w-full shadow-inner mb-12">
-                    <h3 className="text-5xl font-sans font-bold text-white text-center leading-[1.3] text-balance">
-                      {state.cells[state.activeCellIndex].question}
-                    </h3>
-                  </div>
-
-                  {/* Timer UI */}
-                  <div className="w-full max-w-2xl flex flex-col items-center gap-8">
-                    <div className="relative h-4 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5 p-1 shadow-inner">
-                      <motion.div 
-                        className="absolute inset-1 rounded-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500"
-                        initial={{ width: '100%' }}
-                        animate={{ width: `${(state.questionTimeLeft / 10) * 100}%` }}
-                        transition={{ duration: state.isQuestionTimerRunning ? 1 : 0, ease: 'linear' }}
-                      />
-                    </div>
-
-                    <div className="flex items-baseline gap-4">
-                      <span className="text-9xl font-mono font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                        {state.questionTimeLeft}
-                      </span>
-                      <span className="text-2xl font-mono text-white/50 uppercase tracking-tighter">վրկ</span>
-                    </div>
-
+                    <span className="text-base md:text-2xl font-mono text-white/50 uppercase tracking-tighter">վրկ</span>
                   </div>
                 </div>
               </div>
