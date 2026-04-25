@@ -31,6 +31,7 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
     { id: 'ranking', icon: Trophy, label: 'Դասակարգման փուլ' },
     { id: 'topics', icon: Grid3X3, label: 'Թեմայի ընտրություն' },
     { id: 'question', icon: MessageSquare, label: 'Բլից հարցեր' },
+    { id: 'round3', icon: Grid3X3, label: '3-րդ փուլ' },
     { id: 'finalRank', icon: Trophy, label: 'Վերջնական արդյունքներ' },
   ];
 
@@ -204,6 +205,47 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
                   }} className="px-3 bg-green-950 text-green-500 border border-green-900 rounded-r font-bold"> +1 </button>
                </div>
             </div>
+          </div>
+        )}
+
+        {state.view === 'round3' && (
+          <div className="flex items-center gap-4 bg-slate-800 p-2 rounded-lg">
+            <button 
+              onClick={() => {
+                if (state.round3) {
+                  onUpdateState({ round3: { ...state.round3, phase: 'intro' } });
+                }
+              }}
+              className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase hover:bg-blue-500"
+            >
+              Reset Round 3
+            </button>
+            <div className="flex gap-2">
+               {['intro', 'memorize', 'grid', 'question'].map(phase => (
+                 <button
+                   key={phase}
+                   onClick={() => {
+                     if (state.round3) {
+                       onUpdateState({ round3: { ...state.round3, phase: phase as any } });
+                     }
+                   }}
+                   className={`px-2 py-1 rounded text-[9px] font-bold border ${state.round3?.phase === phase ? 'bg-game-gold text-black border-game-gold' : 'border-slate-700 text-slate-400'}`}
+                 >
+                   {phase.toUpperCase()}
+                 </button>
+               ))}
+            </div>
+          </div>
+        )}
+
+        {state.view === 'finalRank' && (
+          <div className="flex items-center gap-4 bg-slate-800 p-2 rounded-lg">
+              <button 
+                onClick={() => onUpdateState({ view: 'round3' })}
+                className="bg-game-gold text-black text-[10px] font-black px-4 py-1 rounded uppercase hover:bg-yellow-400 transition-colors"
+              >
+                Սկսել 3-րդ փուլը
+              </button>
           </div>
         )}
 

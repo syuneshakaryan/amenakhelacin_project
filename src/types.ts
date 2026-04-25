@@ -1,4 +1,6 @@
-export type GameView = 'login' | 'ready' | 'puzzle' | 'ranking' | 'topics' | 'question' | 'finalRank';
+export type GameView = 'login' | 'ready' | 'puzzle' | 'ranking' | 'topics' | 'question' | 'finalRank' | 'round3';
+
+export type Round3Color = 'blue' | 'red' | 'white' | 'grey' | 'yellow';
 
 export interface Player {
   id: number;
@@ -11,6 +13,25 @@ export interface Topic {
   name: string;
   isTaken: boolean;
   questions: string[];
+}
+
+export interface Round3Cell {
+  number: number;
+  color: Round3Color;
+  isRevealed: boolean;
+  question: string;
+}
+
+export interface Round3State {
+  phase: 'intro' | 'memorize' | 'grid' | 'question';
+  cells: Round3Cell[];
+  activeCellIndex: number | null;
+  inputBuffer: string;
+  memorizeTimeLeft: number;
+  questionTimeLeft: number;
+  isQuestionTimerRunning: boolean;
+  currentPlayerIndex: number; // 0, 1, or 2 (top 3 players)
+  top3PlayerIds: number[];
 }
 
 export interface GameState {
@@ -28,4 +49,5 @@ export interface GameState {
   puzzleHint: string;
   isRankingRevealed?: boolean;
   isAuthenticated: boolean;
+  round3?: Round3State;
 }

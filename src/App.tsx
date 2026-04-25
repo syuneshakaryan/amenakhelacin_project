@@ -5,11 +5,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { GameState, GameView } from './types';
-import { INITIAL_PLAYERS, INITIAL_TOPICS } from './constants';
+import { INITIAL_PLAYERS, INITIAL_TOPICS, INITIAL_ROUND3_CELLS } from './constants';
 import { PuzzleView } from './components/views/PuzzleView';
 import { RankingView } from './components/views/RankingView';
 import { TopicGridView } from './components/views/TopicGridView';
 import { QuestionView } from './components/views/QuestionView';
+import { Round3View } from './components/views/Round3View';
 import { LoginView } from './components/views/LoginView';
 import { ReadyView } from './components/views/ReadyView';
 import { ModeratorPanel } from './components/ModeratorPanel';
@@ -28,10 +29,21 @@ const DEFAULT_STATE: GameState = {
   timeLeft: 60,
   isTimerRunning: false,
   isRoundOver: false,
-  puzzleValues: ['7', '2', '8', '5', '1', '6', '1', '9'],
+  puzzleValues: ['6', '2', '8', '1', '8', '4', '3', '7'],
   puzzleHint: 'Բժշկական գործիք',
   isRankingRevealed: false,
   isAuthenticated: false,
+  round3: {
+    phase: 'intro',
+    cells: INITIAL_ROUND3_CELLS,
+    activeCellIndex: null,
+    inputBuffer: '',
+    memorizeTimeLeft: 10,
+    questionTimeLeft: 10,
+    isQuestionTimerRunning: false,
+    currentPlayerIndex: 0,
+    top3PlayerIds: []
+  }
 };
 
 export default function App() {
@@ -83,7 +95,9 @@ export default function App() {
       '/photo_5.png',
       '/photo_6.png',
       '/photo_7.png',
-      '/photo_8.png'
+      '/photo_8.png',
+      '/photo_9_n.jpg',
+      '/image_9_colors.jpg'
     ];
 
     const audioToPreload = [
@@ -198,14 +212,17 @@ export default function App() {
       stingAudioRef.current.currentTime = 0;
     }
 
-    // Handle Blitz Audio
-    if (gameState.view === 'question' && gameState.isTimerRunning && !gameState.isRoundOver) {
+    // Handle Blitz & Round 3 Timer Audio
+    const shouldPlayBlitzAudio = (gameState.view === 'question' && gameState.isTimerRunning && !gameState.isRoundOver) || 
+                               (gameState.view === 'round3' && gameState.round3?.isQuestionTimerRunning);
+
+    if (shouldPlayBlitzAudio) {
       if (!blitzAudioRef.current) {
         blitzAudioRef.current = new Audio("/sounds/Britain's Brainiest _ Round 2 - 60 Second Timer.mp3");
       }
       if (blitzAudioRef.current.paused) {
         blitzAudioRef.current.currentTime = 0;
-        blitzAudioRef.current.play().catch(e => console.warn("Blitz audio failed", e));
+        blitzAudioRef.current.play().catch(e => console.warn("Timer audio failed", e));
       }
     } else {
       if (blitzAudioRef.current) {
@@ -429,6 +446,29 @@ export default function App() {
             onFinishTurn={handleFinishTurn}
           />
         );
+      case 'round3':
+        // Identify top 3 players if not set
+        if (gameState.round3 && gameState.round3.top3PlayerIds.length === 0) {
+          const top3Ids = [...gameState.players]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 3)
+            .map(p => p.id);
+          updateState({ round3: { ...gameState.round3, top3PlayerIds: top3Ids } });
+        }
+        return (
+          <Round3View 
+            state={gameState.round3!} 
+            players={gameState.players}
+            onUpdate={(updates) => updateState({ round3: { ...gameState.round3!, ...updates } })}
+            onUpdateScore={(playerId, points) => {
+              const newPlayers = gameState.players.map(p => 
+                p.id === playerId ? { ...p, score: p.score + points } : p
+              );
+              updateState({ players: newPlayers });
+            }}
+            onNextView={() => updateState({ view: 'finalRank' })}
+          />
+        );
       default:
         return <div>Անհայտ տեսարան</div>;
     }
@@ -503,7 +543,8 @@ export default function App() {
       <div className="fixed -left-[1000vw] -top-[1000vh] opacity-0 pointer-events-none select-none overflow-hidden h-0 w-0">
         {[
           '/photo_1.jpg', '/photo_1.png', '/photo_2.png', '/photo_3.png', 
-          '/photo_4.png', '/photo_5.png', '/photo_6.png', '/photo_7.png', '/photo_8.png'
+          '/photo_4.png', '/photo_5.png', '/photo_6.png', '/photo_7.png', '/photo_8.png',
+          '/photo_9_n.jpg', '/image_9_colors.jpg'
         ].map(src => (
           <img key={src} src={src} loading="eager" fetchPriority="high" alt="" />
         ))}
