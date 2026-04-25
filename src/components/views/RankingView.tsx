@@ -28,7 +28,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
       isSequenceStarted.current = true;
       
       // Setup Audio
-      audioRef.current = new Audio("/sounds/Britain's Brainiest _ Round 2 - Order Of Play Reveal.mp3");
+      audioRef.current = new Audio("public/sounds/Britain's Brainiest _ Round 2 - Order Of Play Reveal.mp3");
       audioRef.current.play().catch(e => console.warn("Reveal audio failed", e));
 
       // Reveal Timestamps (1s, 5s, 9s, 14s, 18s, 22s)
