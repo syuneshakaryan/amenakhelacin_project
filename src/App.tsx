@@ -46,7 +46,7 @@ export default function App() {
   // Background Audio Setup
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio("public/sounds/Britain's Brainiest _ Intro.mp3");
+      audioRef.current = new Audio("/sounds/Britain's Brainiest _ Intro.mp3");
       audioRef.current.loop = true;
       audioRef.current.volume = 0.5;
     }
@@ -87,12 +87,12 @@ export default function App() {
     ];
 
     const audioToPreload = [
-      "public/sounds/Britain's Brainiest _ Intro.mp3",
-      "public/sounds/Britain's Brainiest _ Codebreaker.mp3",
-      "public/sounds/Britain's Brainiest _ End Of Codebreaker.mp3",
-      "public/sounds/Britain's Brainiest _ Round 2 - 60 Second Timer.mp3",
-      "public/sounds/Britain's Brainiest _ Round 2 - Next Player.mp3",
-      "public/sounds/Britain's Brainiest _ Round 2 - Order Of Play Reveal.mp3"
+      "/sounds/Britain's Brainiest _ Intro.mp3",
+      "/sounds/Britain's Brainiest _ Codebreaker.mp3",
+      "/sounds/Britain's Brainiest _ End Of Codebreaker.mp3",
+      "/sounds/Britain's Brainiest _ Round 2 - 60 Second Timer.mp3",
+      "/sounds/Britain's Brainiest _ Round 2 - Next Player.mp3",
+      "/sounds/Britain's Brainiest _ Round 2 - Order Of Play Reveal.mp3"
     ];
 
     imagesToPreload.forEach((src) => {
@@ -201,7 +201,7 @@ export default function App() {
     // Handle Blitz Audio
     if (gameState.view === 'question' && gameState.isTimerRunning && !gameState.isRoundOver) {
       if (!blitzAudioRef.current) {
-        blitzAudioRef.current = new Audio("public/sounds/Britain's Brainiest _ Round 2 - 60 Second Timer.mp3");
+        blitzAudioRef.current = new Audio("/sounds/Britain's Brainiest _ Round 2 - 60 Second Timer.mp3");
       }
       if (blitzAudioRef.current.paused) {
         blitzAudioRef.current.currentTime = 0;
@@ -258,12 +258,12 @@ export default function App() {
       }
 
       if (!codebreakerAudioRef.current) {
-        codebreakerAudioRef.current = new Audio("public/sounds/Britain's Brainiest _ Codebreaker.mp3");
+        codebreakerAudioRef.current = new Audio("/sounds/Britain's Brainiest _ Codebreaker.mp3");
       }
       
       codebreakerAudioRef.current.currentTime = 0;
       codebreakerAudioRef.current.onended = () => {
-        stingAudioRef.current = new Audio("public/sounds/Britain's Brainiest _ End Of Codebreaker.mp3");
+        stingAudioRef.current = new Audio("/sounds/Britain's Brainiest _ End Of Codebreaker.mp3");
         stingAudioRef.current.play().catch(e => console.warn("End audio failed", e));
       };
       

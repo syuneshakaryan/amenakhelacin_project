@@ -20,7 +20,7 @@ export const TopicGridView: React.FC<TopicGridViewProps> = ({
 
   useEffect(() => {
     if (!audioRef.current) {
-      audioRef.current = new Audio("public/sounds/Britain's Brainiest _ Round 2 - Next Player.mp3");
+      audioRef.current = new Audio("/sounds/Britain's Brainiest _ Round 2 - Next Player.mp3");
     }
 
     if (activePlayerName) {
