@@ -361,6 +361,21 @@ export default function App() {
     return () => clearInterval(interval);
   }, [gameState.isTimerRunning, gameState.timeLeft]);
 
+  // Handle puzzle round completion when timer hits 0
+  useEffect(() => {
+    if (gameState.view === 'puzzle' && gameState.timeLeft === 0 && gameState.isTimerRunning) {
+      updateState({ 
+        view: 'ranking', 
+        isTimerRunning: false,
+        isRoundOver: true
+      });
+      
+      // Play end of round sound
+      const endAudio = new Audio("/sounds/Britain's Brainiest _ End Of Codebreaker.mp3");
+      endAudio.play().catch(e => console.warn("End audio failed", e));
+    }
+  }, [gameState.view, gameState.timeLeft, gameState.isTimerRunning, updateState]);
+
   // Handle topic completion
   useEffect(() => {
     if (gameState.timeLeft === 0 && gameState.activeTopicId && gameState.view === 'question') {
@@ -530,7 +545,7 @@ export default function App() {
 
       {/* Main Board Content */}
       <main className="flex-1 overflow-hidden relative z-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           <motion.div
             key={gameState.view}
             initial={{ opacity: 0, filter: 'blur(10px)' }}
@@ -557,7 +572,7 @@ export default function App() {
         {[
           '/photo_1.jpg', '/photo_1.png', '/photo_2.png', '/photo_3.png', 
           '/photo_4.png', '/photo_5.png', '/photo_6.png', '/photo_7.png', '/photo_8.png',
-          '/photo_9_n.jpg', '/image_9_colors.jpg'
+          '/photo_9_n.jpg', '/image_9_colors.jpg', '/photo_10.png', '/photo_11.jpg'
         ].map(src => (
           <img key={src} src={src} loading="eager" fetchPriority="high" alt="" />
         ))}

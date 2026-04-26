@@ -83,8 +83,8 @@ export const RankingView: React.FC<RankingViewProps> = ({
   let finalBg = "/photo_2.png";
   
   if (isRound3Final) {
-    const scores = sortedActive.map(p => p.score);
-    if (scores[0] > scores[1]) {
+    const scores = sortedActive.length > 0 ? sortedActive.map(p => p.score) : [0, 0];
+    if (scores[0] > (scores[1] || 0)) {
       finalBg = "/photo_11.jpg";
     } else {
       finalBg = "/photo_10.png";
@@ -92,13 +92,19 @@ export const RankingView: React.FC<RankingViewProps> = ({
   }
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#020617] overflow-hidden">
-      <div className="game-stage relative">
+    <div className="w-full h-full flex items-center justify-center bg-[#010411] overflow-hidden">
+      <div className="game-stage relative bg-[#020617]">
         {/* Background */}
         <img 
+          key={finalBg}
           src={finalBg} 
-          alt="background" 
-          className={`absolute inset-0 w-full h-full ${isRound3Final ? 'object-contain' : 'object-cover'} select-none pointer-events-none opacity-100`} 
+          alt="Ranking Background" 
+          onError={(e) => {
+            console.error("Ranking background image failed to load:", finalBg);
+            const target = e.target as HTMLImageElement;
+            target.src = '/photo_1.jpg'; // Fallback to photo_1 if photo_2 fails
+          }}
+          className={`absolute inset-0 w-full h-full ${isRound3Final ? 'object-contain' : 'object-cover'} select-none pointer-events-none opacity-100 z-0`} 
         />
         
         {isFinalResults && !isRound3Final && false && (
@@ -114,6 +120,19 @@ export const RankingView: React.FC<RankingViewProps> = ({
                 : 'top-[17.5%] h-[76.5%] grid-rows-6 px-[5%]'
           }`}
         >
+          {/* Header if not complete */}
+          {!isRankingComplete && !showScores && !isRound3Final && (
+            <div className="absolute top-[-10%] inset-x-0 flex justify-center">
+               <motion.div 
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 className="px-8 py-2 bg-blue-900/40 backdrop-blur-md border border-blue-500/30 rounded text-blue-100 font-bold tracking-[0.4em] uppercase text-sm"
+               >
+                 Դասակարգման փուլ
+               </motion.div>
+            </div>
+          )}
+
           {ranking.map((playerId, index) => {
             const player = players.find(p => p.id === playerId);
             const isRevealed = index < effectiveRevealedCount;

@@ -240,88 +240,61 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
         </AnimatePresence>
 
         {/* Question Phase */}
-<AnimatePresence>
-  {state.phase === 'question' && state.activeCellIndex !== null && (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 z-40 bg-[#050b18] flex items-center justify-center p-4 md:p-12"
-    >
-      <div className="relative w-full h-full max-w-6xl aspect-video flex flex-col items-center justify-center">
-        {/* Background Ambience */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#1e3a8a_0%,_transparent_70%)] opacity-20 pointer-events-none" />
-
-        {/* Question Bar at the bottom */}
-        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-full z-10">
-          <div className="relative w-full h-fit">
-            <img 
-              src="/photo_8.png" 
-              alt="Question Container" 
-              className="w-full h-auto drop-shadow-[0_45px_70px_rgba(0,0,0,0.95)]" 
-              referrerPolicy="no-referrer" 
-            />
-            
-            {/* HUD Widget */}
-            <div className="absolute -top-[35%] right-[0%] w-[82%] z-20 select-none">
-              <img src="/photo_7.png" alt="HUD" className="w-full h-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
-              <div className="absolute left-[70.2%] top-[12%] w-[11.5%] h-[55%] flex justify-center items-center">
-                <span className="text-[3.2cqw] font-black text-white leading-none font-mono">
-                  {currentPlayer?.score || 0}
-                </span>
-              </div>
-              <div className="absolute right-[3.2%] top-[12%] w-[13.5%] h-[55%] flex justify-center items-center">
-                <span className={`text-[3.5cqw] font-black leading-none font-mono ${state.questionTimeLeft < 5 ? 'text-red-200 animate-pulse' : 'text-white'}`}>
-                  {state.questionTimeLeft}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Question Text Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center px-[8%] pt-[2%] pb-[6%]">
-            <motion.p 
-              key={state.activeCellIndex}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-[2.8cqw] font-bold text-white text-center leading-[1.1] tracking-tight"
+        <AnimatePresence>
+          {state.phase === 'question' && state.activeCellIndex !== null && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-40 bg-[#050b18] flex items-center justify-center p-4 md:p-12"
             >
-              {state.cells[state.activeCellIndex].question}
-            </motion.p>
-          </div>
-        </div>
-      </div> {/* This closes the relative max-w-6xl container */}
+              <div className="relative w-full h-full max-w-6xl aspect-video flex flex-col items-center justify-center">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#1e3a8a_0%,_transparent_70%)] opacity-20 pointer-events-none" />
 
-      {/* Player identity info corner */}
-      {currentPlayer.id !== -1 && (
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="absolute top-[5%] left-[5%] z-10 p-[2%] bg-slate-950/40 backdrop-blur-xl border border-slate-800/50 rounded-lg shadow-2xl min-w-[25%]"
-        >
-           <div className="text-[1cqw] font-bold text-slate-500 tracking-[0.3em] mb-[0.5%] uppercase">Ակտիվ մասնակից</div>
-           <div className={`text-[2.5cqw] font-bold tracking-tighter ${
-             state.currentPlayerIndex === 0 ? 'text-red-400' :
-             state.currentPlayerIndex === 1 ? 'text-yellow-400' :
-             'text-blue-400'
-           }`}>{currentPlayer.name}</div>
-           <div className="mt-[2%] h-[0.8cqw] w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
-              <motion.div 
-                className={`h-full shadow-[0_0_10px_currentColor] ${
-                  state.currentPlayerIndex === 0 ? 'bg-red-500' :
-                  state.currentPlayerIndex === 1 ? 'bg-yellow-500' :
-                  'bg-blue-500'
-                }`} 
-                initial={{ width: '100%' }}
-                animate={{ width: `${(state.questionTimeLeft/10)*100}%` }}
-                transition={{ ease: "linear", duration: 1 }}
-              />
-           </div>
-        </motion.div>
-      )}
-    </motion.div> // FIXED: This must be motion.div to match line 245
-  )}
-</AnimatePresence>
+                <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-full z-10">
+                  <div className="relative w-full h-fit">
+                    <img src="/photo_8.png" alt="Question Container" className="w-full h-auto drop-shadow-[0_45px_70px_rgba(0,0,0,0.95)]" />
+                    <div className="absolute -top-[35%] right-[0%] w-[82%] z-20 select-none">
+                      <img src="/photo_7.png" alt="HUD" className="w-full h-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
+                      <div className="absolute left-[70.2%] top-[12%] w-[11.5%] h-[55%] flex justify-center items-center">
+                        <span className="text-[3.2cqw] font-black text-white leading-none font-mono">{currentPlayer?.score || 0}</span>
+                      </div>
+                      <div className="absolute right-[3.2%] top-[12%] w-[13.5%] h-[55%] flex justify-center items-center">
+                        <span className={`text-[3.5cqw] font-black leading-none font-mono ${state.questionTimeLeft < 5 ? 'text-red-200 animate-pulse' : 'text-white'}`}>{state.questionTimeLeft}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center px-[8%] pt-[2%] pb-[6%]">
+                    <motion.p 
+                      key={state.activeCellIndex}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-[2.8cqw] font-bold text-white text-center leading-[1.1]"
+                    >
+                      {state.cells[state.activeCellIndex].question}
+                    </motion.p>
+                  </div>
+                </div>
+
+                {currentPlayer.id !== -1 && (
+                  <motion.div className="absolute top-[5%] left-[5%] z-10 p-[2%] bg-slate-950/40 backdrop-blur-xl border border-slate-800/50 rounded-lg shadow-2xl min-w-[25%]">
+                     <div className="text-[1cqw] font-bold text-slate-500 uppercase tracking-widest">Ակտիվ մասնակից</div>
+                     <div className={`text-[2.5cqw] font-bold ${state.currentPlayerIndex === 0 ? 'text-red-400' : state.currentPlayerIndex === 1 ? 'text-yellow-400' : 'text-blue-400'}`}>{currentPlayer.name}</div>
+                     <div className="mt-[2%] h-[0.8cqw] w-full bg-slate-800 rounded-full overflow-hidden">
+                        <motion.div 
+                          className={`h-full ${state.currentPlayerIndex === 0 ? 'bg-red-500' : state.currentPlayerIndex === 1 ? 'bg-yellow-500' : 'bg-blue-500'}`} 
+                          initial={{ width: '100%' }}
+                          animate={{ width: `${(state.questionTimeLeft/10)*100}%` }}
+                          transition={{ ease: "linear", duration: 1 }}
+                        />
+                     </div>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>
