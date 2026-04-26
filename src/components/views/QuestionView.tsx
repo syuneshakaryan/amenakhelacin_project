@@ -28,7 +28,12 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle if round isn't over and it's the moderator or local control
-      if (isRoundOver) return;
+      if (isRoundOver) {
+        if (e.key === 'Enter' && isModerator) {
+          onFinishTurn();
+        }
+        return;
+      }
 
       if (e.key === '1') {
         onAnswer(true);
@@ -107,16 +112,7 @@ export const QuestionView: React.FC<QuestionViewProps> = ({
 
         {/* Moderator Controls */}
         <div className="absolute bottom-[6%] left-1/2 -translate-x-1/2 flex gap-[4%] z-20 w-[60%] justify-center">
-          {isRoundOver && isModerator && (
-             <motion.button 
-               initial={{ opacity: 0, scale: 0.9 }}
-               animate={{ opacity: 1, scale: 1 }}
-               onClick={onFinishTurn}
-               className="bg-game-blue/20 hover:bg-game-blue/40 px-[8%] py-[2%] rounded-md text-game-blue-light border border-game-blue-light uppercase font-black text-[2.2cqh] tracking-[0.2em] transition-all backdrop-blur-xl shadow-[0_0_40px_rgba(59,130,246,0.3)] hover:scale-105"
-             >
-               Հաստատել և հաջորդ խաղացողը
-             </motion.button>
-          )}
+          {/* Manual button removed in favor of Enter key */}
         </div>
         
         {/* Player identity info corner */}

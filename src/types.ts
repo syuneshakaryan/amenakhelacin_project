@@ -32,6 +32,11 @@ export interface Round3State {
   isQuestionTimerRunning: boolean;
   currentPlayerIndex: number; // 0, 1, or 2 (top 3 players)
   top3PlayerIds: number[];
+  playerTopics?: {
+    red: number | null;
+    yellow: number | null;
+    blue: number | null;
+  };
 }
 
 export interface GameState {

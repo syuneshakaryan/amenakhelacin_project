@@ -39,35 +39,35 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative z-10 w-full max-w-md p-8 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+        className="relative z-10 w-[90%] max-w-md p-6 md:p-8 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
       >
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-            <LogIn className="text-white" size={32} />
+        <div className="flex flex-col items-center mb-6 md:mb-8 text-center">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+            <LogIn className="text-white" size={24} md:size={32} />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tighter">Մուտք Համակարգ</h1>
-          <p className="text-blue-400 text-xs font-bold tracking-[0.1em] mt-2">Խաղի Կառավարման Վահանակ</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tighter">Մուտք Համակարգ</h1>
+          <p className="text-blue-400 text-[10px] md:text-xs font-bold tracking-[0.1em] mt-1 md:mt-2">Խաղի Կառավարման Վահանակ</p>
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-3 md:space-y-4">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 tracking-widest mb-1.5 ml-1">Օգտանուն</label>
+            <label className="block text-[8px] md:text-[10px] font-bold text-slate-500 tracking-widest mb-1 md:mb-1.5 ml-1">Օգտանուն</label>
             <input 
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full bg-slate-950/50 border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full bg-slate-950/50 border border-white/5 rounded-xl px-4 py-2 md:py-3 text-white focus:outline-none focus:border-blue-500 transition-all text-sm md:text-base"
               placeholder="admin"
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 tracking-widest mb-1.5 ml-1">Գաղտնաբառ</label>
+            <label className="block text-[8px] md:text-[10px] font-bold text-slate-500 tracking-widest mb-1 md:mb-1.5 ml-1">Գաղտնաբառ</label>
             <input 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-950/50 border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full bg-slate-950/50 border border-white/5 rounded-xl px-4 py-2 md:py-3 text-white focus:outline-none focus:border-blue-500 transition-all text-sm md:text-base"
               placeholder="••••••••"
             />
           </div>
@@ -77,13 +77,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-red-400 text-[10px] font-bold text-center mt-4 tracking-wider"
+            className="text-red-400 text-[9px] md:text-[10px] font-bold text-center mt-3 md:mt-4 tracking-wider"
           >
             Սխալ օգտանուն կամ գաղտնաբառ
           </motion.p>
         )}
 
-        <div className="mt-8 grid grid-cols-2 gap-4">
+        <div className="mt-6 md:mt-8 grid grid-cols-2 gap-3 md:gap-4">
           <button
             onClick={() => handleSubmit('new')}
             className="flex flex-col items-center justify-center gap-2 p-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl transition-all hover:scale-[1.02] active:scale-95 group border border-white/5"

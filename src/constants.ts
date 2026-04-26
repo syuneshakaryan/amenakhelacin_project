@@ -49,6 +49,12 @@ export const ROUND_3_MIXED_QUESTIONS = [
   "Ո՞վ է հայտնի «Գայանե» բալետի և «Սուսերով պարի» հեղինակը։"
 ];
 
+export const ROUND_3_TOPICS: Topic[] = [
+  { id: 101, name: 'Լեզու', questions: ROUND_3_LANG_QUESTIONS, isTaken: false },
+  { id: 102, name: 'Պատմություն', questions: ROUND_3_HIST_QUESTIONS, isTaken: false },
+  { id: 103, name: 'Ֆիզիկա', questions: ROUND_3_PHYS_QUESTIONS, isTaken: false },
+];
+
 const COLORS_25: Round3Color[] = [
   'yellow', 'blue', 'red', 'grey', 'yellow', // 1-5
   'blue', 'red', 'grey', 'blue', 'red',   // 6-10
@@ -365,3 +371,6 @@ export const INITIAL_TOPICS: Topic[] = [
 'Ռուսերենում ո՞ր տառը երբեք բառի սկզբում չի գրվում'
 ] },
 ];
+
+
+

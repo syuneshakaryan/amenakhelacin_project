@@ -42,7 +42,8 @@ const DEFAULT_STATE: GameState = {
     questionTimeLeft: 10,
     isQuestionTimerRunning: false,
     currentPlayerIndex: 0,
-    top3PlayerIds: []
+    top3PlayerIds: [],
+    playerTopics: { red: null, yellow: null, blue: null }
   }
 };
 
@@ -413,12 +414,30 @@ export default function App() {
             onRevealComplete={() => updateState({ isRankingRevealed: true })}
           />
         );
-      case 'finalRank':
-        const scoreRanking = [...gameState.players]
-          .sort((a, b) => b.score - a.score)
+      case 'finalRank': {
+        const top3Ids = gameState.round3?.top3PlayerIds || [];
+        const isRound3Active = top3Ids.length > 0;
+        
+        const playersToRank = isRound3Active 
+          ? gameState.players.filter(p => top3Ids.includes(p.id))
+          : gameState.players;
+
+        const scoreRanking = [...playersToRank]
+          .sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.id - b.id; // Consistent tie-breaking
+          })
           .map(p => p.id);
-        const fullScoreRanking = [...scoreRanking, ...Array(Math.max(0, 6 - scoreRanking.length)).fill(null)];
-        return <RankingView ranking={fullScoreRanking} players={gameState.players} showScores />;
+        
+        return (
+          <RankingView 
+            ranking={scoreRanking} 
+            players={gameState.players} 
+            showScores 
+            isFinalResults={isRound3Active}
+          />
+        );
+      }
       case 'topics':
         const pickingPlayer = gameState.players.find(p => p.id === gameState.activePlayerId);
         return (
@@ -432,7 +451,9 @@ export default function App() {
       case 'question':
         const currentTopic = gameState.topics.find(t => t.id === gameState.activeTopicId);
         const currentPlayer = gameState.players.find(p => p.id === gameState.activePlayerId);
-        const question = currentTopic?.questions[gameState.currentQuestionIndex % currentTopic.questions.length] || 'Հարցեր չկան:';
+        const question = (currentTopic && gameState.currentQuestionIndex < currentTopic.questions.length) 
+          ? currentTopic.questions[gameState.currentQuestionIndex] 
+          : 'Հարցերի ավարտ';
         
         return (
           <QuestionView 
@@ -447,14 +468,6 @@ export default function App() {
           />
         );
       case 'round3':
-        // Identify top 3 players if not set
-        if (gameState.round3 && gameState.round3.top3PlayerIds.length === 0) {
-          const top3Ids = [...gameState.players]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 3)
-            .map(p => p.id);
-          updateState({ round3: { ...gameState.round3, top3PlayerIds: top3Ids } });
-        }
         return (
           <Round3View 
             state={gameState.round3!} 

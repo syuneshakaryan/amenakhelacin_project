@@ -1,5 +1,6 @@
 import React from 'react';
 import { GameState, Player, GameView } from '../types';
+import { ROUND_3_TOPICS } from '../constants';
 import { 
   Puzzle, 
   Trophy, 
@@ -209,31 +210,107 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         )}
 
         {state.view === 'round3' && (
-          <div className="flex items-center gap-4 bg-slate-800 p-2 rounded-lg">
-            <button 
-              onClick={() => {
-                if (state.round3) {
-                  onUpdateState({ round3: { ...state.round3, phase: 'intro' } });
-                }
-              }}
-              className="px-3 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase hover:bg-blue-500"
-            >
-              Reset Round 3
-            </button>
-            <div className="flex gap-2">
-               {['intro', 'memorize', 'grid', 'question'].map(phase => (
-                 <button
-                   key={phase}
-                   onClick={() => {
-                     if (state.round3) {
-                       onUpdateState({ round3: { ...state.round3, phase: phase as any } });
-                     }
-                   }}
-                   className={`px-2 py-1 rounded text-[9px] font-bold border ${state.round3?.phase === phase ? 'bg-game-gold text-black border-game-gold' : 'border-slate-700 text-slate-400'}`}
-                 >
-                   {phase.toUpperCase()}
-                 </button>
-               ))}
+          <div className="flex flex-col gap-2 bg-slate-800 p-2 rounded-lg">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => {
+                  if (state.round3) {
+                    onUpdateState({ round3: { ...state.round3, phase: 'intro' } });
+                  }
+                }}
+                className="px-3 py-1 bg-red-900 border border-red-700 text-white text-[10px] font-bold rounded uppercase hover:bg-red-800"
+              >
+                Reset Round 3
+              </button>
+              <div className="flex gap-2">
+                 {['intro', 'memorize', 'grid', 'question'].map(phase => (
+                   <button
+                     key={phase}
+                     onClick={() => {
+                       if (state.round3) {
+                         onUpdateState({ round3: { ...state.round3, phase: phase as any } });
+                       }
+                     }}
+                     className={`px-2 py-1 rounded text-[9px] font-bold border ${state.round3?.phase === phase ? 'bg-game-gold text-black border-game-gold' : 'border-slate-700 text-slate-400'}`}
+                   >
+                     {phase.toUpperCase()}
+                   </button>
+                 ))}
+              </div>
+            </div>
+
+            {/* Topic Assignment */}
+            <div className="flex items-center gap-3 bg-slate-900/40 p-1.5 rounded border border-slate-700/50">
+               <span className="text-[9px] font-bold uppercase text-slate-500 whitespace-nowrap border-r border-slate-700 pr-3">Թեմաներ:</span>
+               <div className="flex items-center gap-4">
+                 {(['red', 'yellow', 'blue'] as const).map((color, idx) => {
+                   const playerId = state.round3?.top3PlayerIds[idx];
+                   const player = players.find(p => p.id === playerId);
+                   const topicId = state.round3?.playerTopics?.[color];
+                   
+                   // Filter topics to exclude those selected by others
+                   const otherSelectedTopicIds = [
+                     color !== 'red' ? state.round3?.playerTopics?.red : null,
+                     color !== 'yellow' ? state.round3?.playerTopics?.yellow : null,
+                     color !== 'blue' ? state.round3?.playerTopics?.blue : null
+                   ].filter(Boolean);
+
+                   return (
+                     <div key={color} className="flex items-center gap-1.5 border-r border-slate-800 last:border-0 pr-4 last:pr-0">
+                       <div className={`w-2 h-2 rounded-full shrink-0 ${
+                         color === 'red' ? 'bg-red-500' : 
+                         color === 'yellow' ? 'bg-yellow-500' : 
+                         'bg-blue-500'
+                       }`} />
+                       <span className="text-[9px] font-bold text-slate-400 w-14 truncate">{player?.name || '---'}</span>
+                       <select 
+                         value={topicId || ''}
+                         onChange={(e) => {
+                           const newTopicId = parseInt(e.target.value);
+                           const selectedTopic = ROUND_3_TOPICS.find(t => t.id === newTopicId);
+                           if (!selectedTopic) return;
+
+                           const newPlayerTopics = { 
+                             ...state.round3?.playerTopics,
+                             [color]: newTopicId 
+                           };
+
+                           // Regenerate cells questions when topic changes
+                           const newCells = [...(state.round3?.cells || [])];
+                           let qIdx = 0;
+                           newCells.forEach((cell, i) => {
+                             if (cell.color === color) {
+                               newCells[i] = { 
+                                 ...cell, 
+                                 question: selectedTopic.questions[qIdx++] || "---" 
+                               };
+                             }
+                           });
+
+                           onUpdateState({ 
+                             round3: { 
+                               ...state.round3!, 
+                               playerTopics: newPlayerTopics as any,
+                               cells: newCells
+                             } 
+                           });
+                         }}
+                         className="bg-slate-950 text-slate-200 text-[10px] py-0.5 px-1 border border-slate-700 rounded focus:border-game-gold outline-none w-24 cursor-pointer"
+                       >
+                         <option value="">Ընտրել...</option>
+                         {ROUND_3_TOPICS.map(t => {
+                           const isUsedElsewhere = otherSelectedTopicIds.includes(t.id);
+                           return (
+                             <option key={t.id} value={t.id} disabled={isUsedElsewhere}>
+                               {t.name} {isUsedElsewhere ? '(Զբաղված)' : ''}
+                             </option>
+                           );
+                         })}
+                       </select>
+                     </div>
+                   );
+                 })}
+               </div>
             </div>
           </div>
         )}
@@ -241,8 +318,32 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         {state.view === 'finalRank' && (
           <div className="flex items-center gap-4 bg-slate-800 p-2 rounded-lg">
               <button 
-                onClick={() => onUpdateState({ view: 'round3' })}
+                onClick={() => {
+                  // Identify top 3
+                  const top3 = [...players]
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 3);
+                  
+                  const top3Ids = top3.map(p => p.id);
+                  
+                  // Reset their scores
+                  const updatedPlayers = players.map(p => 
+                    top3Ids.includes(p.id) ? { ...p, score: 0 } : p
+                  );
+
+                  onUpdateState({ 
+                    players: updatedPlayers,
+                    view: 'round3',
+                    round3: {
+                      ...state.round3!,
+                      top3PlayerIds: top3Ids,
+                      phase: 'intro',
+                      currentPlayerIndex: 0
+                    }
+                  });
+                }}
                 className="bg-game-gold text-black text-[10px] font-black px-4 py-1 rounded uppercase hover:bg-yellow-400 transition-colors"
+                title="Սկսել 3-րդ փուլը (Միավորները կզրոյացվեն)"
               >
                 Սկսել 3-րդ փուլը
               </button>
