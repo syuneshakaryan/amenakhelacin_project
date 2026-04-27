@@ -27,6 +27,28 @@ export const RankingView: React.FC<RankingViewProps> = ({
   const sortedActive = [...activePlayers].sort((a, b) => b.score - a.score);
 
   const isRankingComplete = ranking.every(id => id !== null);
+  const isRound3Final = isFinalResults && ranking.length === 3;
+
+  useEffect(() => {
+    let backgroundAudio: HTMLAudioElement | null = null;
+    
+    if (isRound3Final && showScores) {
+      backgroundAudio = new Audio("/sounds/Britain's Brainiest _ Winner Of The Show.mp3");
+      backgroundAudio.play().catch(e => console.warn("Winner audio failed", e));
+    } else {
+      // Regular ranking or non-score final view
+      backgroundAudio = new Audio("/sounds/Britain's Brainiest _ Intro.mp3");
+      backgroundAudio.loop = true;
+      backgroundAudio.play().catch(e => console.warn("Intro audio failed", e));
+    }
+
+    return () => {
+      if (backgroundAudio) {
+        backgroundAudio.pause();
+        backgroundAudio.currentTime = 0;
+      }
+    };
+  }, [isRound3Final, showScores]);
 
   useEffect(() => {
     if (isRankingComplete && !isSequenceStarted.current && !showScores && !isAlreadyRevealed) {
@@ -79,7 +101,6 @@ export const RankingView: React.FC<RankingViewProps> = ({
     }
   };
 
-  const isRound3Final = isFinalResults && ranking.length === 3;
   let finalBg = "/photo_2.png";
   
   if (isRound3Final) {
@@ -119,7 +140,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
         <div 
           className={`absolute inset-x-0 z-10 grid transition-all duration-1000 ${
             isRound3Final
-              ? 'top-[15%] h-[74%] grid-rows-3 px-[10%] gap-[1.5%]'
+              ? 'top-[31.5%] h-[36%] grid-rows-3 px-[5%] gap-[4%]'
               : ranking.length === 3 
                 ? 'top-[22%] h-[55%] grid-rows-3 gap-6 px-[5%]' 
                 : 'top-[17.5%] h-[76.5%] grid-rows-6 px-[5%]'
@@ -144,7 +165,7 @@ export const RankingView: React.FC<RankingViewProps> = ({
             const highlightClass = player ? getHighlightColor(player) : null;
             
             return (
-              <div key={index} className={`relative flex items-center overflow-hidden h-full ${!isRound3Final ? 'pl-[35%] pr-[25%]' : 'px-[15%]'}`}>
+              <div key={index} className={`relative flex items-center overflow-hidden h-full ${isRound3Final ? 'pl-[11%] pr-[0%]' : 'pl-[35%] pr-[25%]'}`}>
                 <AnimatePresence>
                   {isRevealed && (
                     <motion.div
@@ -164,19 +185,24 @@ export const RankingView: React.FC<RankingViewProps> = ({
                       }}
                     >
                       <span className={`
-                        font-bold text-white italic tracking-widest truncate drop-shadow-[0_2px_4px_rgba(0,0,0,1)]
-                        ${isRound3Final ? 'text-[4cqh]' : (ranking.length === 3 ? 'text-[5cqh]' : 'text-[4.2cqh]')}
+                        font-bold text-white italic tracking-widest truncate drop-shadow-[0_4px_6px_rgba(0,0,0,0.8)] text-center
+                        ${isRound3Final ? 'text-[5.5cqh] flex-1 pr-[14%]' : (ranking.length === 3 ? 'text-[5cqh]' : 'text-[4.2cqh]')}
                       `}>
                         {player ? player.name : ''}
                       </span>
                       
                       {showScores && player && (
-                        <span className={`
-                          font-mono font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]
-                          ${isRound3Final ? 'text-[5cqh] mr-[-5%]' : (ranking.length === 3 ? 'text-[6cqh]' : 'text-[4.2cqh]')}
+                        <div className={`
+                          flex items-center justify-center h-full
+                          ${isRound3Final ? 'w-[16%] mr-[2.2%]' : ''}
                         `}>
-                          {player.score}
-                        </span>
+                          <span className={`
+                            font-mono font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]
+                            ${isRound3Final ? 'text-[5.5cqh]' : (ranking.length === 3 ? 'text-[6cqh]' : 'text-[4.2cqh]')}
+                          `}>
+                            {player.score}
+                          </span>
+                        </div>
                       )}
                     </motion.div>
                   )}
@@ -189,4 +215,3 @@ export const RankingView: React.FC<RankingViewProps> = ({
     </div>
   );
 };
-

@@ -26,7 +26,7 @@ const DEFAULT_STATE: GameState = {
   activePlayerId: null,
   activeTopicId: null,
   currentQuestionIndex: 0,
-  timeLeft: 60,
+  timeLeft: 5,
   isTimerRunning: false,
   isRoundOver: false,
   puzzleValues: ['6', '2', '8', '1', '8', '4', '3', '7'],
@@ -213,9 +213,8 @@ export default function App() {
       stingAudioRef.current.currentTime = 0;
     }
 
-    // Handle Blitz & Round 3 Timer Audio
-    const shouldPlayBlitzAudio = (gameState.view === 'question' && gameState.isTimerRunning && !gameState.isRoundOver) || 
-                               (gameState.view === 'round3' && gameState.round3?.isQuestionTimerRunning);
+    // Handle Blitz Timer Audio (Round 2 only)
+    const shouldPlayBlitzAudio = gameState.view === 'question' && gameState.isTimerRunning && !gameState.isRoundOver;
 
     if (shouldPlayBlitzAudio) {
       if (!blitzAudioRef.current) {
@@ -300,7 +299,7 @@ export default function App() {
     updateState({
       activeTopicId: topicId,
       view: 'question',
-      timeLeft: 60,
+      timeLeft: 5,
       isTimerRunning: true,
       isRoundOver: false,
       currentQuestionIndex: 0,

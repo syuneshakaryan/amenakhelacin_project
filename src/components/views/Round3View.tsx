@@ -12,6 +12,9 @@ interface Round3ViewProps {
 
 export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate, onUpdateScore, onNextView }) => {
   const [inputBuffer, setInputBuffer] = useState('');
+  const introAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const memorizeAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const questionTimerAudioRef = React.useRef<HTMLAudioElement | null>(null);
   
   const top3 = players
     .filter(p => state.top3PlayerIds.includes(p.id))
@@ -23,7 +26,60 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
 
   const currentPlayer = top3[state.currentPlayerIndex] || top3[0] || ({ name: '---', score: 0, id: -1 } as Player);
 
-  // Handle Memorize Timer
+  const playEffect = (src: string) => {
+    const audio = new Audio(src);
+    audio.play().catch(e => console.warn("Audio play failed", e));
+  };
+
+  // Handle Intro Sound
+  useEffect(() => {
+    if (state.phase === 'intro') {
+      const audio = new Audio("/sounds/Britain's Brainiest _ Round 3 - Rules.mp3");
+      introAudioRef.current = audio;
+      audio.play().catch(e => console.warn("Intro audio failed", e));
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+    }
+  }, [state.phase]);
+
+  // Handle Memorize Sound
+  useEffect(() => {
+    if (state.phase === 'memorize') {
+      const audio = new Audio("/sounds/Britain's Brainiest _ Round 3 - Timer.mp3");
+      memorizeAudioRef.current = audio;
+      audio.play().catch(e => console.warn("Memorize timer audio failed", e));
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+    }
+  }, [state.phase]);
+
+  // Handle Question Timer Sound
+  useEffect(() => {
+    if (state.phase === 'question' && state.isQuestionTimerRunning) {
+      const audio = new Audio("/sounds/Britain's Brainiest _ Round 3 - Timer.mp3");
+      questionTimerAudioRef.current = audio;
+      audio.play().catch(e => console.warn("Question timer audio failed", e));
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+    }
+  }, [state.phase, state.isQuestionTimerRunning]);
+
+  // Check for round completion
+  useEffect(() => {
+    const revealedCount = state.cells.filter(c => c.isRevealed).length;
+    // We only transition if we are back in grid phase and no active cell is being discussed
+    if (revealedCount === 25 && state.phase === 'grid' && state.activeCellIndex === null) {
+      onNextView();
+    }
+  }, [state.cells, state.phase, state.activeCellIndex, onNextView]);
+
+  // Timers and Keyboard listeners remain the same...
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (state.phase === 'memorize' && state.memorizeTimeLeft > 0) {
@@ -36,7 +92,6 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
     return () => clearInterval(timer);
   }, [state.phase, state.memorizeTimeLeft, onUpdate]);
 
-  // Handle Question Timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (state.phase === 'question' && state.isQuestionTimerRunning && state.questionTimeLeft > 0) {
@@ -49,81 +104,60 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
     return () => clearInterval(timer);
   }, [state.phase, state.isQuestionTimerRunning, state.questionTimeLeft, onUpdate]);
 
-  // Keyboard Listeners
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (state.phase === 'intro') {
-        if (e.key === 'Enter') {
-          onUpdate({ phase: 'memorize', memorizeTimeLeft: 10 });
-        }
+        if (e.key === 'Enter') onUpdate({ phase: 'memorize', memorizeTimeLeft: 10 });
       } else if (state.phase === 'grid') {
         if (state.activeCellIndex === null) {
-          if (e.key >= '0' && e.key <= '9') {
-            setInputBuffer(prev => (prev + e.key).slice(-2));
-          } else if (e.key === 'Enter') {
+          if (e.key >= '0' && e.key <= '9') setInputBuffer(prev => (prev + e.key).slice(-2));
+          else if (e.key === 'Enter') {
             const num = parseInt(inputBuffer);
             if (num >= 1 && num <= 25) {
               const index = num - 1;
               if (!state.cells[index].isRevealed) {
                 const newCells = [...state.cells];
                 newCells[index].isRevealed = true;
-                onUpdate({ 
-                  cells: newCells, 
-                  activeCellIndex: index
-                });
+                
+                // Play category sound
+                const cellColor = newCells[index].color;
+                const playerColor = state.currentPlayerIndex === 0 ? 'red' : state.currentPlayerIndex === 1 ? 'yellow' : 'blue';
+                if (cellColor === 'grey') {
+                  playEffect("/sounds/Britain's Brainiest _ Round 3 - General Knowledge Question.mp3");
+                } else if (cellColor === playerColor) {
+                  playEffect("/sounds/Britain's Brainiest _ Round 3 - Specialist Subject Question.mp3");
+                } else {
+                  playEffect("/sounds/Britain's Brainiest _ Round 3 - Opponents Subject Question.mp3");
+                }
+
+                onUpdate({ cells: newCells, activeCellIndex: index });
                 setInputBuffer('');
               }
             }
-          } else if (e.key === 'Backspace') {
-            setInputBuffer(prev => prev.slice(0, -1));
-          }
-        } else {
-          // A cell is revealed but we are still in grid phase (discussing color)
-          if (e.key === 'Enter') {
-            onUpdate({ 
-              phase: 'question',
-              questionTimeLeft: 10,
-              isQuestionTimerRunning: false
-            });
-          } else if (e.key === 'Backspace') {
-            // Cancel selection if moderator made a mistake
-            const newCells = [...state.cells];
-            newCells[state.activeCellIndex].isRevealed = false;
-            onUpdate({
-              cells: newCells,
-              activeCellIndex: null
-            });
-          }
+          } else if (e.key === 'Backspace') setInputBuffer(prev => prev.slice(0, -1));
+        } else if (e.key === 'Enter') {
+          onUpdate({ phase: 'question', questionTimeLeft: 10, isQuestionTimerRunning: false });
+        } else if (e.key === 'Backspace') {
+          const newCells = [...state.cells];
+          newCells[state.activeCellIndex].isRevealed = false;
+          onUpdate({ cells: newCells, activeCellIndex: null });
         }
       } else if (state.phase === 'question') {
-        // Index 0: 1st (Red), Index 1: 2nd (Yellow), Index 2: 3rd (Blue)
         if (e.key === 'Enter' && !state.isQuestionTimerRunning && state.questionTimeLeft === 10) {
           onUpdate({ isQuestionTimerRunning: true });
-        } else if (e.key === '1') { // Correct
-          if (state.activeCellIndex !== null) {
-            const cell = state.cells[state.activeCellIndex];
-            const playerColor = state.currentPlayerIndex === 0 ? 'red' : state.currentPlayerIndex === 1 ? 'yellow' : 'blue';
-            let points = 2; // Default for opponent color
-            if (cell.color === playerColor) points = 3;
-            else if (cell.color === 'grey') points = 1;
-            
-            onUpdateScore(currentPlayer.id, points);
-            onUpdate({ 
-              phase: 'grid', 
-              activeCellIndex: null,
-              currentPlayerIndex: (state.currentPlayerIndex + 1) % top3.length
-            });
-          }
-        } else if (e.key === '2') { // Wrong
-          onUpdate({ 
-            phase: 'grid', 
-            activeCellIndex: null,
-            currentPlayerIndex: (state.currentPlayerIndex + 1) % top3.length
-          });
+        } else if (e.key === '1' && state.activeCellIndex !== null) {
+          playEffect("/sounds/Britain's Brainiest _ Round 3 - Correct Answer.mp3");
+          const cell = state.cells[state.activeCellIndex];
+          const playerColor = state.currentPlayerIndex === 0 ? 'red' : state.currentPlayerIndex === 1 ? 'yellow' : 'blue';
+          let points = cell.color === playerColor ? 3 : cell.color === 'grey' ? 1 : 2;
+          onUpdateScore(currentPlayer.id, points);
+          onUpdate({ phase: 'grid', activeCellIndex: null, currentPlayerIndex: (state.currentPlayerIndex + 1) % top3.length });
+        } else if (e.key === '2') {
+          playEffect("/sounds/Britain's Brainiest _ Round 3 - Incorrect Answer.mp3");
+          onUpdate({ phase: 'grid', activeCellIndex: null, currentPlayerIndex: (state.currentPlayerIndex + 1) % top3.length });
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [state, onUpdate, onUpdateScore, inputBuffer, currentPlayer, top3.length]);
@@ -131,11 +165,11 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
   const getCellColorClass = (color: Round3Color, isRevealed: boolean) => {
     if (!isRevealed) return 'bg-[#1a1a1a] text-white/90 border border-white/10';
     switch (color) {
-      case 'white': return 'bg-white text-black border-2 border-slate-200';
-      case 'yellow': return 'bg-yellow-500 text-black border-2 border-yellow-400';
-      case 'blue': return 'bg-blue-800 text-white border-2 border-blue-400';
-      case 'red': return 'bg-red-800 text-white border-2 border-red-400';
-      case 'grey': return 'bg-zinc-500 text-white border-2 border-zinc-400';
+      case 'white': return 'bg-white text-black';
+      case 'yellow': return 'bg-yellow-500 text-black';
+      case 'blue': return 'bg-blue-800 text-white';
+      case 'red': return 'bg-red-800 text-white';
+      case 'grey': return 'bg-zinc-500 text-white';
       default: return 'bg-gray-800 text-white';
     }
   };
@@ -147,14 +181,17 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
         {/* Intro Phase */}
         <AnimatePresence>
           {state.phase === 'intro' && (
-              <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-10 bg-black flex items-center justify-center cursor-pointer"
-              onClick={() => onUpdate({ phase: 'memorize', memorizeTimeLeft: 10 })}
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 z-50 bg-black flex items-center justify-center"
             >
-              <img src="/photo_9_n.jpg" alt="Intro" className="w-[80%] h-[80%] object-contain" />
+              <img 
+                src="/photo_9_n.jpg" 
+                alt="Intro" 
+                className="w-full h-full object-contain" 
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -163,19 +200,18 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
         <AnimatePresence>
           {state.phase === 'memorize' && (
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-20 bg-black flex items-center justify-center"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 z-50 bg-black flex items-center justify-center"
             >
-              <img src="/image_9_colors.jpg" alt="Colors" className="w-full h-full object-contain" />
-              <div className="absolute top-10 right-10 flex flex-col items-center">
-                <div className="bg-black/90 w-24 h-24 rounded-full flex items-center justify-center border-4 border-white shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                  <span className="text-4xl font-mono font-black text-white">
-                    {state.memorizeTimeLeft}
-                  </span>
-                </div>
-                <div className="mt-2 text-white font-bold tracking-tighter text-sm uppercase">Վայրկյան</div>
+              <img 
+                src="/image_9_colors.jpg" 
+                alt="Colors" 
+                className="w-full h-full object-contain" 
+              />
+              <div className="absolute top-10 right-10 bg-black/80 p-4 rounded-full border-2 border-white min-w-[80px] text-center">
+                <span className="text-4xl font-mono font-bold text-white">{state.memorizeTimeLeft}</span>
               </div>
             </motion.div>
           )}
@@ -184,113 +220,57 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
         {/* Grid Phase */}
         <AnimatePresence>
           {state.phase === 'grid' && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-30 flex items-center justify-center bg-[#020617] p-12"
-            >
-              {/* Background HUD style */}
-              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500 via-transparent to-transparent pointer-events-none" />
-              
-              <div className="relative w-full h-full flex flex-col items-center justify-center gap-4 md:gap-8 overflow-hidden p-4">
-                {/* Active Player Status */}
-                <div className="flex flex-wrap justify-center gap-2 md:gap-6 w-full max-w-4xl">
-                  {top3.map((p, i) => (
-                    <div 
-                      key={p.id}
-                      className={`px-3 py-1.5 md:px-6 md:py-3 rounded-lg md:rounded-xl border md:border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[150px] ${
-                        i === state.currentPlayerIndex 
-                          ? 'bg-blue-600/30 border-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)] scale-105 md:scale-110' 
-                          : 'bg-slate-900/50 border-slate-800 opacity-60'
-                      }`}
-                    >
-                      <span className="text-[8px] md:text-[10px] font-mono text-blue-400/80 uppercase tracking-widest mb-0.5 md:mb-1 text-center">
-                        {i === 0 ? 'ԿԱՐՄԻՐ' : i === 1 ? 'ԴԵՂԻՆ' : 'ԿԱՊՈՒՅՏ'}
-                      </span>
-                      <span className="text-xs md:text-lg font-bold text-white uppercase truncate max-w-full">{p.name}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-5 gap-2 md:gap-3 w-full max-w-[85vw] md:max-w-[600px] aspect-square">
-                  {state.cells.map((cell, idx) => (
-                    <motion.div
-                      key={idx}
-                      whileHover={!cell.isRevealed ? { scale: 1.05, backgroundColor: '#333' } : {}}
-                      animate={state.activeCellIndex === idx ? { scale: [1, 1.05, 1], transition: { repeat: Infinity, duration: 1.5 } } : {}}
-                      className={`flex items-center justify-center rounded-md md:rounded-lg text-2xl md:text-4xl font-bold transition-all shadow-xl md:shadow-2xl ${getCellColorClass(cell.color, cell.isRevealed)} ${state.activeCellIndex === idx ? 'ring-4 ring-white scale-105 z-40' : ''}`}
-                    >
-                      {cell.number}
-                    </motion.div>
-                  ))}
-                </div>
-
-                <div className="flex flex-col items-center">
-                  <div className="text-slate-500 font-mono text-xl md:text-2xl tracking-[0.5em] h-6 md:h-8">
-                    {inputBuffer.padStart(2, '0')}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 bg-[#020617]">
+              <div className="grid grid-cols-5 gap-3 w-full max-w-[600px] aspect-square p-4">
+                {state.cells.map((cell, idx) => (
+                  <div key={idx} className={`flex items-center justify-center rounded-lg text-4xl font-bold shadow-2xl transition-all ${getCellColorClass(cell.color, cell.isRevealed)} ${state.activeCellIndex === idx ? 'ring-4 ring-white scale-110 z-20' : ''}`}>
+                    {cell.number}
                   </div>
-                  <div className="text-[8px] md:text-[10px] text-slate-600 uppercase tracking-[0.2em] mt-1 md:mt-2">
-                    Մուտքագրեք վանդակի համարը
-                  </div>
-                </div>
+                ))}
               </div>
+              <div className="text-slate-500 font-mono text-3xl tracking-[0.5em]">{inputBuffer.padStart(2, '0')}</div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Question Phase */}
+        {/* Question Phase - Normalized Layout */}
         <AnimatePresence>
           {state.phase === 'question' && state.activeCellIndex !== null && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40 bg-[#050b18] flex items-center justify-center p-4 md:p-12"
-            >
+            <motion.div className="absolute inset-0 z-40 bg-[#050b18] flex items-center justify-center p-4">
               <div className="relative w-full h-full max-w-6xl aspect-video flex flex-col items-center justify-center">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,_#1e3a8a_0%,_transparent_70%)] opacity-20 pointer-events-none" />
-
-                <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-full z-10">
-                  <div className="relative w-full h-fit">
-                    <img src="/photo_8.png" alt="Question Container" className="w-full h-auto drop-shadow-[0_45px_70px_rgba(0,0,0,0.95)]" />
-                    <div className="absolute -top-[35%] right-[0%] w-[82%] z-20 select-none">
-                      <img src="/photo_7.png" alt="HUD" className="w-full h-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
-                      <div className="absolute left-[70.2%] top-[12%] w-[11.5%] h-[55%] flex justify-center items-center">
-                        <span className="text-[3.2cqw] font-black text-white leading-none font-mono">{currentPlayer?.score || 0}</span>
+                
+                {/* Main Question Plate & HUD */}
+                <div className="absolute bottom-[30%] left-1/2 -translate-x-1/2 w-[95%]">
+                  <div className="relative w-full">
+                    <img src="/photo_8.png" alt="Plate" className="w-full h-auto drop-shadow-2xl" />
+                    
+                    {/* HUD (Score and Timer) */}
+                    <div className="absolute -top-[45%] right-[0.5%] w-[80%] z-20">
+                      <img src="/photo_7.png" alt="HUD" className="w-full h-auto" />
+                      
+                      {/* Points in the Square */}
+                      <div className="absolute left-[70.5%] top-[-7%] w-[11%] h-[55%] flex justify-center items-center">
+                        <span className="text-[3.2cqw] font-black text-white font-mono">
+                          {currentPlayer?.score || 0}
+                        </span>
                       </div>
-                      <div className="absolute right-[3.2%] top-[12%] w-[13.5%] h-[55%] flex justify-center items-center">
-                        <span className={`text-[3.5cqw] font-black leading-none font-mono ${state.questionTimeLeft < 5 ? 'text-red-200 animate-pulse' : 'text-white'}`}>{state.questionTimeLeft}</span>
+                      
+                      {/* Timer in the Diamond */}
+                      <div className="absolute right-[3.5%] top-[-7%] w-[13.5%] h-[55%] flex justify-center items-center">
+                        <span className={`text-[3.5cqw] font-black font-mono ${state.questionTimeLeft < 5 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+                          {state.questionTimeLeft}
+                        </span>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="absolute inset-0 flex items-center justify-center px-[8%] pt-[2%] pb-[6%]">
-                    <motion.p 
-                      key={state.activeCellIndex}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-[2.8cqw] font-bold text-white text-center leading-[1.1]"
-                    >
-                      {state.cells[state.activeCellIndex].question}
-                    </motion.p>
+                    {/* Question Text Centered in Plate */}
+                    <div className="absolute inset-0 flex items-center justify-center px-[5%] pt-[2%] pb-[5%]">
+                      <p className="text-[2cqw] font-bold text-white text-center leading-snug">
+                        {state.cells[state.activeCellIndex].question}
+                      </p>
+                    </div>
                   </div>
                 </div>
-
-                {currentPlayer.id !== -1 && (
-                  <motion.div className="absolute top-[5%] left-[5%] z-10 p-[2%] bg-slate-950/40 backdrop-blur-xl border border-slate-800/50 rounded-lg shadow-2xl min-w-[25%]">
-                     <div className="text-[1cqw] font-bold text-slate-500 uppercase tracking-widest">Ակտիվ մասնակից</div>
-                     <div className={`text-[2.5cqw] font-bold ${state.currentPlayerIndex === 0 ? 'text-red-400' : state.currentPlayerIndex === 1 ? 'text-yellow-400' : 'text-blue-400'}`}>{currentPlayer.name}</div>
-                     <div className="mt-[2%] h-[0.8cqw] w-full bg-slate-800 rounded-full overflow-hidden">
-                        <motion.div 
-                          className={`h-full ${state.currentPlayerIndex === 0 ? 'bg-red-500' : state.currentPlayerIndex === 1 ? 'bg-yellow-500' : 'bg-blue-500'}`} 
-                          initial={{ width: '100%' }}
-                          animate={{ width: `${(state.questionTimeLeft/10)*100}%` }}
-                          transition={{ ease: "linear", duration: 1 }}
-                        />
-                     </div>
-                  </motion.div>
-                )}
               </div>
             </motion.div>
           )}
