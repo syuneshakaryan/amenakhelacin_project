@@ -43,6 +43,9 @@
   position: relative;
   container-type: size; /* Enables container query units */
   overflow: hidden;
+  background-color: black;
+  transform: translateZ(0); /* Force GPU compositing layer */
+  will-change: transform, opacity;
 }
 
 @keyframes scanline {

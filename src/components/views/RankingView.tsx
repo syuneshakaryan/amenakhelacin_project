@@ -92,20 +92,25 @@ export const RankingView: React.FC<RankingViewProps> = ({
   }
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#010411] overflow-hidden">
+    <div className="w-full h-full flex items-center justify-center bg-black overflow-hidden">
       <div className="game-stage relative bg-[#020617]">
         {/* Background */}
-        <img 
-          key={finalBg}
-          src={finalBg} 
-          alt="Ranking Background" 
-          onError={(e) => {
-            console.error("Ranking background image failed to load:", finalBg);
-            const target = e.target as HTMLImageElement;
-            target.src = '/photo_1.jpg'; // Fallback to photo_1 if photo_2 fails
-          }}
-          className={`absolute inset-0 w-full h-full ${isRound3Final ? 'object-contain' : 'object-cover'} select-none pointer-events-none opacity-100 z-0`} 
-        />
+        <AnimatePresence mode="popLayout">
+          <motion.img 
+            key={finalBg}
+            src={finalBg} 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            alt="Ranking Background" 
+            onError={(e) => {
+              console.error("Ranking background image failed to load:", finalBg);
+              const target = e.target as HTMLImageElement;
+              target.src = '/photo_1.jpg'; // Fallback to photo_1 if photo_2 fails
+            }}
+            className={`absolute inset-0 w-full h-full ${isRound3Final ? 'object-contain' : 'object-cover'} select-none pointer-events-none z-0`} 
+          />
+        </AnimatePresence>
         
         {isFinalResults && !isRound3Final && false && (
           <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-black/80 pointer-events-none" />

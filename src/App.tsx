@@ -545,14 +545,14 @@ export default function App() {
 
       {/* Main Board Content */}
       <main className="flex-1 overflow-hidden relative z-0">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           <motion.div
             key={gameState.view}
-            initial={{ opacity: 0, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, filter: 'blur(10px)' }}
-            transition={{ duration: 0.4 }}
-            className="h-full w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="h-full w-full will-change-opacity"
           >
             {renderView()}
           </motion.div>
