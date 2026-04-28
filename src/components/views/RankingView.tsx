@@ -35,19 +35,14 @@ export const RankingView: React.FC<RankingViewProps> = ({
     if (isRound3Final && showScores) {
       backgroundAudio = new Audio("/sounds/Britain's Brainiest _ Winner Of The Show.mp3");
       backgroundAudio.play().catch(e => console.warn("Winner audio failed", e));
-    } else {
-      // Regular ranking or non-score final view
-      backgroundAudio = new Audio("/sounds/Britain's Brainiest _ Intro.mp3");
-      backgroundAudio.loop = true;
-      backgroundAudio.play().catch(e => console.warn("Intro audio failed", e));
-    }
 
-    return () => {
-      if (backgroundAudio) {
-        backgroundAudio.pause();
-        backgroundAudio.currentTime = 0;
-      }
-    };
+      return () => {
+        if (backgroundAudio) {
+          backgroundAudio.pause();
+          backgroundAudio.currentTime = 0;
+        }
+      };
+    }
   }, [isRound3Final, showScores]);
 
   useEffect(() => {

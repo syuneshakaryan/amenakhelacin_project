@@ -26,7 +26,7 @@ const DEFAULT_STATE: GameState = {
   activePlayerId: null,
   activeTopicId: null,
   currentQuestionIndex: 0,
-  timeLeft: 5,
+  timeLeft: 60,
   isTimerRunning: false,
   isRoundOver: false,
   puzzleValues: ['6', '2', '8', '1', '8', '4', '3', '7'],
@@ -299,7 +299,7 @@ export default function App() {
     updateState({
       activeTopicId: topicId,
       view: 'question',
-      timeLeft: 5,
+      timeLeft: 60,
       isTimerRunning: true,
       isRoundOver: false,
       currentQuestionIndex: 0,

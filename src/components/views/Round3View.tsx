@@ -221,6 +221,21 @@ export const Round3View: React.FC<Round3ViewProps> = ({ state, players, onUpdate
         <AnimatePresence>
           {state.phase === 'grid' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 bg-[#020617]">
+              
+              {/* Current Player Picker Indicator */}
+              <div className="flex flex-col items-center gap-2 mb-4 mt-12">
+                <span className="text-slate-400 font-mono tracking-[0.3em] text-sm uppercase">Current Picker</span>
+                <div className={`text-4xl font-black px-10 py-3 rounded-xl border-2 transition-all duration-500 shadow-lg ${
+                  state.currentPlayerIndex === 0 
+                    ? 'text-red-500 border-red-500/50 bg-red-500/10 shadow-red-500/20' 
+                    : state.currentPlayerIndex === 1 
+                      ? 'text-yellow-500 border-yellow-500/50 bg-yellow-500/10 shadow-yellow-500/20'
+                      : 'text-blue-500 border-blue-500/50 bg-blue-500/10 shadow-blue-500/20'
+                }`}>
+                  {currentPlayer.name}
+                </div>
+              </div>
+
               <div className="grid grid-cols-5 gap-3 w-full max-w-[600px] aspect-square p-4">
                 {state.cells.map((cell, idx) => (
                   <div key={idx} className={`flex items-center justify-center rounded-lg text-4xl font-bold shadow-2xl transition-all ${getCellColorClass(cell.color, cell.isRevealed)} ${state.activeCellIndex === idx ? 'ring-4 ring-white scale-110 z-20' : ''}`}>
