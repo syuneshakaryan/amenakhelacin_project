@@ -26,7 +26,7 @@ const DEFAULT_STATE: GameState = {
   activePlayerId: null,
   activeTopicId: null,
   currentQuestionIndex: 0,
-  timeLeft: 60,
+  timeLeft: 5,
   isTimerRunning: false,
   isRoundOver: false,
   puzzleValues: ['6', '2', '8', '1', '8', '4', '3', '7'],
@@ -299,7 +299,7 @@ export default function App() {
     updateState({
       activeTopicId: topicId,
       view: 'question',
-      timeLeft: 60,
+      timeLeft: 5,
       isTimerRunning: true,
       isRoundOver: false,
       currentQuestionIndex: 0,
@@ -465,9 +465,13 @@ export default function App() {
       case 'question':
         const currentTopic = gameState.topics.find(t => t.id === gameState.activeTopicId);
         const currentPlayer = gameState.players.find(p => p.id === gameState.activePlayerId);
-        const question = (currentTopic && gameState.currentQuestionIndex < currentTopic.questions.length) 
+        const rawQuestion = (currentTopic && gameState.currentQuestionIndex < currentTopic.questions.length) 
           ? currentTopic.questions[gameState.currentQuestionIndex] 
           : 'Հարցերի ավարտ';
+        
+        const question = (rawQuestion !== 'Հարցերի ավարտ') 
+          ? `${gameState.currentQuestionIndex + 1}. ${rawQuestion}` 
+          : rawQuestion;
         
         return (
           <QuestionView 
