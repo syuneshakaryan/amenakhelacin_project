@@ -68,6 +68,21 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         {state.view === 'puzzle' && (
           <div className="flex flex-col gap-2 bg-slate-800 p-2 rounded-lg">
              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Խմբագրել անունները:</span>
+                <div className="flex gap-1 overflow-x-auto">
+                  {players.map(p => (
+                    <input 
+                      key={p.id}
+                      type="text"
+                      value={p.name}
+                      placeholder={`Խաղացող ${p.id}`}
+                      onChange={(e) => handleNameChange(p.id, e.target.value)}
+                      className="bg-slate-950 border border-slate-700 text-[10px] text-white px-1 py-0.5 rounded focus:border-game-blue w-20"
+                    />
+                  ))}
+                </div>
+             </div>
+             <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Հուշող արտահայտություն:</span>
                 <input 
                   type="text"
@@ -171,24 +186,24 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         )}
 
         {state.view === 'question' && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => onUpdateState({ isTimerRunning: !state.isTimerRunning })}
-                className={`p-2 rounded-full ${state.isTimerRunning ? 'bg-red-900/50 text-red-500' : 'bg-green-900/50 text-green-500'}`}
+                className={`p-2 rounded-full shadow-lg transition-all ${state.isTimerRunning ? 'bg-red-900/50 text-red-500 hover:bg-red-900 border border-red-800/50' : 'bg-green-900/50 text-green-500 hover:bg-green-900 border border-green-800/50'}`}
               >
                 {state.isTimerRunning ? <Pause size={20} /> : <Play size={20} />}
               </button>
               <button 
                 onClick={() => onUpdateState({ timeLeft: 60, isTimerRunning: false, currentQuestionIndex: 0 })}
-                className="p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white"
+                className="p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white border border-slate-700 transition-colors"
               >
                 <RotateCcw size={20} />
               </button>
             </div>
             
-            <div className="flex items-center gap-2">
-               <span className="text-xs font-bold uppercase text-slate-500">Ճշգրտում:</span>
+            <div className="flex flex-col gap-1 px-4 border-l border-slate-800">
+               <span className="text-[9px] font-black uppercase text-slate-500">Ճշգրտում:</span>
                <div className="flex gap-1 h-8">
                   <button onClick={() => {
                     const p = players.find(player => player.id === state.activePlayerId);
@@ -196,14 +211,14 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
                       const updatedPlayers = players.map(pl => pl.id === p.id ? { ...pl, score: Math.max(0, pl.score - 1) } : pl);
                       onUpdateState({ players: updatedPlayers });
                     }
-                  }} className="px-3 bg-red-950 text-red-500 border border-red-900 rounded-l font-bold"> -1 </button>
+                  }} className="px-3 bg-red-950 text-red-500 border border-red-900 rounded-l font-black hover:bg-red-900 transition-colors"> -1 </button>
                   <button onClick={() => {
                     const p = players.find(player => player.id === state.activePlayerId);
                     if (p) {
                       const updatedPlayers = players.map(pl => pl.id === p.id ? { ...pl, score: pl.score + 1 } : pl);
                       onUpdateState({ players: updatedPlayers });
                     }
-                  }} className="px-3 bg-green-950 text-green-500 border border-green-900 rounded-r font-bold"> +1 </button>
+                  }} className="px-3 bg-green-950 text-green-500 border border-green-900 rounded-r font-black hover:bg-green-900 transition-colors"> +1 </button>
                </div>
             </div>
           </div>
