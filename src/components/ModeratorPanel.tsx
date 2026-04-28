@@ -68,21 +68,6 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
         {state.view === 'puzzle' && (
           <div className="flex flex-col gap-2 bg-slate-800 p-2 rounded-lg">
              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Խմբագրել անունները:</span>
-                <div className="flex gap-1 overflow-x-auto">
-                  {players.map(p => (
-                    <input 
-                      key={p.id}
-                      type="text"
-                      value={p.name}
-                      placeholder={`Խաղացող ${p.id}`}
-                      onChange={(e) => handleNameChange(p.id, e.target.value)}
-                      className="bg-slate-950 border border-slate-700 text-[10px] text-white px-1 py-0.5 rounded focus:border-game-blue w-20"
-                    />
-                  ))}
-                </div>
-             </div>
-             <div className="flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase text-slate-500 ml-2">Հուշող արտահայտություն:</span>
                 <input 
                   type="text"
