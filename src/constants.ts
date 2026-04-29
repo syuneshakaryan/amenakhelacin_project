@@ -1,12 +1,12 @@
 import { Player, Topic, Round3Cell, Round3Color } from './types';
 
 export const INITIAL_PLAYERS: Player[] = [
-  { id: 1, name: 'Փատյան Եվա', score: 0 },
-  { id: 2, name: 'Երիցյան Անի', score: 0 },
-  { id: 3, name: 'Կարապետյան Գևորգ', score: 0 },
-  { id: 4, name: 'Միքաելյան Դավիթ', score: 0 },
-  { id: 5, name: 'Չոբանյան Նարեկ', score: 0 },
-  { id: 6, name: 'Արարաջյան Մհեր', score: 0 },
+  { id: 1, name: 'Player 1', score: 0 },
+  { id: 2, name: 'Player 2', score: 0 },
+  { id: 3, name: 'Player 3', score: 0 },
+  { id: 4, name: 'Player 4', score: 0 },
+  { id: 5, name: 'Player 5', score: 0 },
+  { id: 6, name: 'Player 6', score: 0 },
 ];
 
 export const ROUND_3_LANG_QUESTIONS = [
